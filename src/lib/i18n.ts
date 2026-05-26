@@ -1,6 +1,17 @@
 export type Lang = "en" | "ru" | "uz";
 
-export const dict = {
+interface DictShape {
+  tagline: string;
+  searchPlaceholder: string;
+  nav: Record<string, string>;
+  hero: { eyebrow: string; title: string; sub: string; ctaPrimary: string; ctaSecondary: string };
+  sections: Record<string, string>;
+  product: Record<string, string>;
+  footer: Record<string, string>;
+  assistant: string;
+}
+
+export const dict: Record<Lang, DictShape> = {
   en: {
     tagline: "Premium Wellness Marketplace",
     searchPlaceholder: "Search vitamins, supplements, organic foods…",
