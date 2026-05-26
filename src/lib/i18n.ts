@@ -183,6 +183,6 @@ export const dict: Record<Lang, DictShape> = {
     },
     assistant: "Organic AI bilan so'rang",
   },
-} as const;
+};
 
-export type Dict = typeof dict.en;
+export type Dict = DictShape;
