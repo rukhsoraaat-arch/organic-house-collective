@@ -26,7 +26,7 @@ export function SiteHeader() {
 
   const navItems = [
     t.nav.vitamins, t.nav.sugarFree, t.nav.glutenFree,
-    t.nav.snacks, t.nav.beauty, t.nav.tea, t.nav.baby,
+    t.nav.snacks, t.nav.beauty,
     t.nav.desserts, t.nav.bread, t.nav.drinks,
   ];
 
