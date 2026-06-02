@@ -38,30 +38,30 @@ interface Product {
 
 /* ─── DEFAULT DATA ─── */
 const DEFAULT_PRODUCTS: Product[] = [
-  { id: "1", name: "Premium Omega 3 Fish Oil", category: "Supplements", price: 285000, oldPrice: 340000, costPrice: 168000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
-  { id: "2", name: "Marine Collagen + Vitamin C", category: "Beauty", price: 420000, costPrice: 210000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
-  { id: "3", name: "Vitamin D₃ 5000 IU", category: "Vitamins", price: 175000, costPrice: 82000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
-  { id: "4", name: "Organic Chia Seeds 500g", category: "Superfoods", price: 89000, oldPrice: 110000, costPrice: 45000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg", badge: "" },
-  { id: "5", name: "Raw Almond Butter", category: "Organic", price: 145000, costPrice: 90000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
-  { id: "6", name: "Ceremonial Matcha Powder", category: "Tea & Coffee", price: 320000, costPrice: 175000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg", badge: "" },
+  { id: "1", name: "Premium Omega 3 Fish Oil", category: "БАДы", price: 285000, oldPrice: 340000, costPrice: 168000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
+  { id: "2", name: "Marine Collagen + Vitamin C", category: "Красота", price: 420000, costPrice: 210000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
+  { id: "3", name: "Vitamin D₃ 5000 IU", category: "Витамины", price: 175000, costPrice: 82000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
+  { id: "4", name: "Organic Chia Seeds 500g", category: "Суперфуды", price: 89000, oldPrice: 110000, costPrice: 45000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg", badge: "" },
+  { id: "5", name: "Raw Almond Butter", category: "Десерты", price: 145000, costPrice: 90000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
+  { id: "6", name: "Ceremonial Matcha Powder", category: "Напитки", price: 320000, costPrice: 175000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg", badge: "" },
 ];
 
 const REVENUE_DATA = [
-  { month: "Jan", revenue: 12400000, orders: 84 },
-  { month: "Feb", revenue: 15800000, orders: 102 },
-  { month: "Mar", revenue: 18200000, orders: 128 },
-  { month: "Apr", revenue: 16500000, orders: 115 },
-  { month: "May", revenue: 22100000, orders: 156 },
-  { month: "Jun", revenue: 28400000, orders: 198 },
-  { month: "Jul", revenue: 31200000, orders: 221 },
+  { month: "Янв", revenue: 12400000, orders: 84 },
+  { month: "Фев", revenue: 15800000, orders: 102 },
+  { month: "Мар", revenue: 18200000, orders: 128 },
+  { month: "Апр", revenue: 16500000, orders: 115 },
+  { month: "Май", revenue: 22100000, orders: 156 },
+  { month: "Июн", revenue: 28400000, orders: 198 },
+  { month: "Июл", revenue: 31200000, orders: 221 },
 ];
 
 const CATEGORY_DATA = [
-  { name: "Vitamins", value: 38 },
-  { name: "Organic", value: 24 },
-  { name: "Supplements", value: 19 },
-  { name: "Beauty", value: 12 },
-  { name: "Sports", value: 7 },
+  { name: "Витамины", value: 38 },
+  { name: "Десерты", value: 24 },
+  { name: "БАДы", value: 19 },
+  { name: "Красота", value: 12 },
+  { name: "Напитки", value: 7 },
 ];
 
 /* ─── GALLERY IMAGES ─── */
@@ -916,6 +916,12 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
     bestseller: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
   };
 
+  const BADGE_LABELS: Record<string, string> = {
+    sale: "Скидка",
+    new: "Новинка",
+    bestseller: "Хит продаж",
+  };
+
   return (
     <div className="p-8">
       {/* toast */}
@@ -983,7 +989,9 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
                 </td>
                 <td className="px-6 py-4">
                   {p.badge ? (
-                    <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-medium border ${BADGE_STYLES[p.badge] ?? ""}`}>{p.badge}</span>
+                    <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-medium border ${BADGE_STYLES[p.badge] ?? ""}`}>
+                      {BADGE_LABELS[p.badge] ?? p.badge}
+                    </span>
                   ) : <span className="text-white/20 text-xs">—</span>}
                 </td>
                 <td className="px-6 py-4">
@@ -1036,13 +1044,13 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
 ══════════════════════════════════════════════════════ */
 function AnalyticsTab() {
   const visitors = [
-    { day: "Mon", desktop: 320, mobile: 480 },
-    { day: "Tue", desktop: 410, mobile: 390 },
-    { day: "Wed", desktop: 520, mobile: 610 },
-    { day: "Thu", desktop: 380, mobile: 520 },
-    { day: "Fri", desktop: 640, mobile: 720 },
-    { day: "Sat", desktop: 590, mobile: 680 },
-    { day: "Sun", desktop: 420, mobile: 510 },
+    { day: "Пн", desktop: 320, mobile: 480 },
+    { day: "Вт", desktop: 410, mobile: 390 },
+    { day: "Ср", desktop: 520, mobile: 610 },
+    { day: "Чт", desktop: 380, mobile: 520 },
+    { day: "Пт", desktop: 640, mobile: 720 },
+    { day: "Сб", desktop: 590, mobile: 680 },
+    { day: "Вс", desktop: 420, mobile: 510 },
   ];
 
   return (
@@ -1068,8 +1076,8 @@ function AnalyticsTab() {
               contentStyle={{ backgroundColor: "#1c2333", border: "1px solid #ffffff15", borderRadius: 12 }}
               labelStyle={{ color: "#ffffff80" }}
             />
-            <Line type="monotone" dataKey="desktop" stroke="#10b981" strokeWidth={2} dot={{ fill: "#10b981", r: 3 }} name="Desktop" />
-            <Line type="monotone" dataKey="mobile" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 3 }} name="Mobile" />
+            <Line type="monotone" dataKey="desktop" stroke="#10b981" strokeWidth={2} dot={{ fill: "#10b981", r: 3 }} name="Десктоп" />
+            <Line type="monotone" dataKey="mobile" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 3 }} name="Мобильные" />
           </LineChart>
         </ResponsiveContainer>
         <div className="flex items-center gap-6 mt-4 justify-center">
@@ -1130,13 +1138,13 @@ function FinanceTab({ products }: { products: Product[] }) {
 
   /* monthly profit trend (simulated) */
   const trendData = [
-    { month: "Jan", daromad: 12400000, tannarx: 7200000, foyda: 5200000 },
-    { month: "Feb", daromad: 15800000, tannarx: 9100000, foyda: 6700000 },
-    { month: "Mar", daromad: 18200000, tannarx: 10400000, foyda: 7800000 },
-    { month: "Apr", daromad: 16500000, tannarx: 9800000, foyda: 6700000 },
-    { month: "May", daromad: 22100000, tannarx: 12500000, foyda: 9600000 },
-    { month: "Jun", daromad: 28400000, tannarx: 15800000, foyda: 12600000 },
-    { month: "Jul", daromad: 31200000, tannarx: 17100000, foyda: 14100000 },
+    { month: "Янв", daromad: 12400000, tannarx: 7200000, foyda: 5200000 },
+    { month: "Фев", daromad: 15800000, tannarx: 9100000, foyda: 6700000 },
+    { month: "Мар", daromad: 18200000, tannarx: 10400000, foyda: 7800000 },
+    { month: "Апр", daromad: 16500000, tannarx: 9800000, foyda: 6700000 },
+    { month: "Май", daromad: 22100000, tannarx: 12500000, foyda: 9600000 },
+    { month: "Июн", daromad: 28400000, tannarx: 15800000, foyda: 12600000 },
+    { month: "Июл", daromad: 31200000, tannarx: 17100000, foyda: 14100000 },
   ];
 
   const marginColor = (m: number) =>
@@ -1176,11 +1184,11 @@ function FinanceTab({ products }: { products: Product[] }) {
                 labelStyle={{ color: "#fff", fontWeight: 600 }}
                 formatter={(v: number, name: string) => [
                   `${fmt(v)} UZS`,
-                  name === "cost" ? "Себестоимость" : name === "profit" ? "Прибыль" : name
+                  name === "cost" || name === "Себестоимость" ? "Себестоимость" : name === "profit" || name === "Прибыль" ? "Прибыль" : name
                 ]}
               />
-              <Bar dataKey="cost" stackId="a" fill="#f97316" radius={[0,0,6,6]} name="cost" />
-              <Bar dataKey="profit" stackId="a" fill="#10b981" radius={[6,6,0,0]} name="profit" />
+              <Bar dataKey="cost" stackId="a" fill="#f97316" radius={[0,0,6,6]} name="Себестоимость" />
+              <Bar dataKey="profit" stackId="a" fill="#10b981" radius={[6,6,0,0]} name="Прибыль" />
               <Line type="monotone" dataKey="price" stroke="#6366f1" strokeWidth={2}
                 dot={{ fill: "#6366f1", r: 4 }} name="Цена" />
             </ComposedChart>
