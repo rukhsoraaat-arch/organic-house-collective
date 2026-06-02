@@ -388,104 +388,175 @@ function DashboardTab({ products }: { products: Product[] }) {
 }
 
 /* ══════════════════════════════════════════════════════
-   IMAGE PICKER (gallery + url tabs)
+   GALLERY MODAL — opens as its own overlay (z-[100])
 ══════════════════════════════════════════════════════ */
-function ImagePicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
-  const [tab, setTab] = useState<"gallery" | "url">("gallery");
+function GalleryModal({ current, onSelect, onClose }: {
+  current: string;
+  onSelect: (url: string) => void;
+  onClose: () => void;
+}) {
   const [filter, setFilter] = useState<"All" | "Products" | "Categories" | "Other">("All");
-  const [urlInput, setUrlInput] = useState(value);
-
   const groups = ["All", "Products", "Categories", "Other"] as const;
   const filtered = GALLERY_IMAGES.filter(img => filter === "All" || img.group === filter);
 
   return (
-    <div className="space-y-3">
-      {/* preview */}
-      <div className="flex gap-4 items-start">
-        <div className="w-20 h-20 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative">
-          <img src={value} alt="" className="w-full h-full object-cover"
-            onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0'; }} />
-          <div className="absolute inset-0 grid place-items-center pointer-events-none">
-            <ImageIcon className="w-5 h-5 text-white/20" />
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{ backgroundColor: "rgba(0,0,0,0.85)" }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-[#161b22] border border-white/10 rounded-3xl w-full max-w-3xl flex flex-col shadow-2xl"
+        style={{ maxHeight: "80vh" }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-white/6 flex-shrink-0">
+          <div>
+            <h2 className="text-white font-semibold text-lg">🖼 Image Gallery</h2>
+            <p className="text-white/40 text-sm mt-0.5">Click an image to select it</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 grid place-items-center text-white/50 hover:text-white transition"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* filters */}
+        <div className="px-6 py-3 border-b border-white/6 flex gap-2 flex-shrink-0">
+          {groups.map(g => (
+            <button
+              key={g}
+              onClick={() => setFilter(g)}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition ${
+                filter === g
+                  ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                  : "bg-white/5 border-white/8 text-white/50 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              {g} {g !== "All" && `(${GALLERY_IMAGES.filter(i => i.group === g).length})`}
+            </button>
+          ))}
+        </div>
+
+        {/* grid — scrollable */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+            {filtered.map(img => {
+              const isSelected = current === img.url;
+              return (
+                <button
+                  key={img.url}
+                  type="button"
+                  onClick={() => { onSelect(img.url); onClose(); }}
+                  className={`group relative rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
+                    isSelected
+                      ? "border-emerald-500 shadow-lg shadow-emerald-500/30 scale-[0.98]"
+                      : "border-white/10 hover:border-emerald-500/60 hover:scale-[0.97]"
+                  }`}
+                  style={{ aspectRatio: "1 / 1" }}
+                >
+                  <img
+                    src={img.url}
+                    alt={img.label}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+
+                  {/* dark overlay on hover */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition" />
+
+                  {/* selected overlay */}
+                  {isSelected && (
+                    <div className="absolute inset-0 bg-emerald-500/25 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+                        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* label */}
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent px-3 py-3">
+                    <div className="text-white text-xs font-medium truncate">{img.label}</div>
+                    <div className="text-white/50 text-[10px]">{img.group}</div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
-        <div className="flex-1">
-          <div className="text-white/60 text-sm mb-2 font-medium">Product Image</div>
-          {/* tab toggle */}
-          <div className="inline-flex bg-white/5 border border-white/8 rounded-xl p-1 gap-1">
-            <button onClick={() => setTab("gallery")}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
-                tab === "gallery" ? "bg-emerald-500/20 text-emerald-400" : "text-white/40 hover:text-white/60"
-              }`}>
-              🖼 Gallery
-            </button>
-            <button onClick={() => setTab("url")}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
-                tab === "url" ? "bg-emerald-500/20 text-emerald-400" : "text-white/40 hover:text-white/60"
-              }`}>
-              🔗 URL
-            </button>
+
+        {/* footer */}
+        <div className="px-6 py-4 border-t border-white/6 flex items-center justify-between flex-shrink-0">
+          <span className="text-white/30 text-sm">{filtered.length} images</span>
+          <button onClick={onClose} className="px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm transition">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   IMAGE PICKER — preview + "Choose from Gallery" button
+══════════════════════════════════════════════════════ */
+function ImagePicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [showGallery, setShowGallery] = useState(false);
+  const [urlInput, setUrlInput] = useState(value);
+
+  return (
+    <div className="space-y-3">
+      <div className="text-white/60 text-sm font-medium mb-1">Product Image</div>
+
+      {/* preview row */}
+      <div className="flex gap-4 items-center">
+        <div className="w-24 h-24 rounded-2xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative">
+          <img
+            src={value}
+            alt="preview"
+            className="w-full h-full object-cover"
+            onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+          />
+          <div className="absolute inset-0 grid place-items-center pointer-events-none">
+            <ImageIcon className="w-6 h-6 text-white/15" />
           </div>
+        </div>
+
+        <div className="flex-1 space-y-2">
+          {/* Gallery button — primary action */}
+          <button
+            type="button"
+            onClick={() => setShowGallery(true)}
+            className="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/25 text-sm font-medium transition"
+          >
+            <ImageIcon className="w-4 h-4" />
+            Choose from Gallery
+          </button>
+
+          {/* URL input */}
+          <input
+            value={urlInput}
+            onChange={e => {
+              setUrlInput(e.target.value);
+              onChange(e.target.value);
+            }}
+            className="w-full h-9 px-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder:text-white/25 focus:outline-none focus:border-emerald-500/50 transition"
+            placeholder="Or paste image URL…"
+          />
         </div>
       </div>
 
-      {tab === "gallery" && (
-        <div>
-          {/* filter chips */}
-          <div className="flex gap-2 mb-3 flex-wrap">
-            {groups.map(g => (
-              <button key={g} onClick={() => setFilter(g)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium border transition ${
-                  filter === g
-                    ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
-                    : "bg-white/5 border-white/8 text-white/40 hover:text-white/60"
-                }`}>
-                {g}
-              </button>
-            ))}
-          </div>
-
-          {/* grid */}
-          <div className="grid grid-cols-4 gap-2 max-h-52 overflow-y-auto pr-1">
-            {filtered.map(img => (
-              <button key={img.url} onClick={() => onChange(img.url)}
-                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition group ${
-                  value === img.url
-                    ? "border-emerald-500 ring-2 ring-emerald-500/30"
-                    : "border-white/8 hover:border-emerald-500/50"
-                }`}>
-                <img src={img.url} alt={img.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }} />
-                {/* selected tick */}
-                {value === img.url && (
-                  <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  </div>
-                )}
-                {/* label on hover */}
-                <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] text-center py-1 opacity-0 group-hover:opacity-100 transition truncate px-1">
-                  {img.label}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {tab === "url" && (
-        <div>
-          <input
-            value={urlInput}
-            onChange={e => { setUrlInput(e.target.value); onChange(e.target.value); }}
-            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition"
-            placeholder="https://example.com/image.jpg"
-          />
-          <p className="text-white/30 text-xs mt-2">Paste any image URL from the internet</p>
-        </div>
+      {/* Gallery modal — rendered outside the scroll container */}
+      {showGallery && (
+        <GalleryModal
+          current={value}
+          onSelect={url => { onChange(url); setUrlInput(url); }}
+          onClose={() => setShowGallery(false)}
+        />
       )}
     </div>
   );
