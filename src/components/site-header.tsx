@@ -25,9 +25,9 @@ export function SiteHeader() {
   }, []);
 
   const navItems = [
-    t.nav.vitamins, t.nav.organic, t.nav.sugarFree, t.nav.glutenFree,
-    t.nav.snacks, t.nav.sports, t.nav.vegan, t.nav.keto,
-    t.nav.beauty, t.nav.superfoods, t.nav.tea, t.nav.baby,
+    t.nav.vitamins, t.nav.sugarFree, t.nav.glutenFree,
+    t.nav.snacks, t.nav.beauty, t.nav.tea, t.nav.baby,
+    t.nav.desserts, t.nav.bread, t.nav.drinks,
   ];
 
   return (
@@ -39,11 +39,11 @@ export function SiteHeader() {
       {/* Top utility bar */}
       <div className="hidden md:block border-b border-border/50 bg-forest text-cream">
         <div className="container mx-auto px-6 flex items-center justify-between text-xs h-9">
-          <span className="tracking-wide opacity-80">Free delivery in Tashkent on orders over 300 000 UZS</span>
+          <span className="tracking-wide opacity-80">{t.header.freeDelivery}</span>
           <div className="flex items-center gap-5 opacity-90">
-            <a href="#stores" className="hover:text-gold transition-colors">Store locator</a>
-            <a href="#delivery" className="hover:text-gold transition-colors">Delivery</a>
-            <a href="#help" className="hover:text-gold transition-colors">Help</a>
+            <a href="#stores" className="hover:text-gold transition-colors">{t.header.storeLocator}</a>
+            <a href="#delivery" className="hover:text-gold transition-colors">{t.header.delivery}</a>
+            <a href="#help" className="hover:text-gold transition-colors">{t.header.help}</a>
           </div>
         </div>
       </div>
@@ -103,9 +103,9 @@ export function SiteHeader() {
             )}
           </div>
 
-          <IconBtn label="Account"><User className="size-5" /></IconBtn>
-          <IconBtn label="Wishlist" badge="3"><Heart className="size-5" /></IconBtn>
-          <IconBtn onClick={() => setIsCartOpen(true)} label="Cart" badge={totalItems > 0 ? String(totalItems) : undefined}><ShoppingBag className="size-5" /></IconBtn>
+          <IconBtn label={t.header.account}><User className="size-5" /></IconBtn>
+          <IconBtn label={t.header.wishlist} badge="3"><Heart className="size-5" /></IconBtn>
+          <IconBtn onClick={() => setIsCartOpen(true)} label={t.header.cart} badge={totalItems > 0 ? String(totalItems) : undefined}><ShoppingBag className="size-5" /></IconBtn>
         </div>
       </div>
 
