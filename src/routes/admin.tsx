@@ -4,12 +4,15 @@ import {
   LayoutDashboard, Package, LogOut, TrendingUp, ShoppingCart,
   Users, DollarSign, Edit2, Save, X, Upload, Eye, EyeOff,
   ChevronUp, ChevronDown, Star, BarChart2, Leaf, Search,
-  Bell, Settings, Tag, Image as ImageIcon, ArrowUpRight,
+  Bell, Image as ImageIcon, ArrowUpRight, Wallet,
 } from "lucide-react";
+
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  ComposedChart, Legend, Cell, ReferenceLine,
 } from "recharts";
+
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -22,20 +25,22 @@ interface Product {
   category: string;
   price: number;
   oldPrice?: number;
+  costPrice?: number;
   rating: number;
   reviews: number;
   image: string;
   badge?: "sale" | "new" | "bestseller" | "";
 }
 
+
 /* ─── DEFAULT DATA ─── */
 const DEFAULT_PRODUCTS: Product[] = [
-  { id: "1", name: "Premium Omega 3 Fish Oil", category: "Supplements", price: 285000, oldPrice: 340000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
-  { id: "2", name: "Marine Collagen + Vitamin C", category: "Beauty", price: 420000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
-  { id: "3", name: "Vitamin D₃ 5000 IU", category: "Vitamins", price: 175000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
-  { id: "4", name: "Organic Chia Seeds 500g", category: "Superfoods", price: 89000, oldPrice: 110000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg", badge: "" },
-  { id: "5", name: "Raw Almond Butter", category: "Organic", price: 145000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
-  { id: "6", name: "Ceremonial Matcha Powder", category: "Tea & Coffee", price: 320000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg", badge: "" },
+  { id: "1", name: "Premium Omega 3 Fish Oil", category: "Supplements", price: 285000, oldPrice: 340000, costPrice: 168000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
+  { id: "2", name: "Marine Collagen + Vitamin C", category: "Beauty", price: 420000, costPrice: 210000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
+  { id: "3", name: "Vitamin D₃ 5000 IU", category: "Vitamins", price: 175000, costPrice: 82000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
+  { id: "4", name: "Organic Chia Seeds 500g", category: "Superfoods", price: 89000, oldPrice: 110000, costPrice: 45000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg", badge: "" },
+  { id: "5", name: "Raw Almond Butter", category: "Organic", price: 145000, costPrice: 90000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
+  { id: "6", name: "Ceremonial Matcha Powder", category: "Tea & Coffee", price: 320000, costPrice: 175000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg", badge: "" },
 ];
 
 const REVENUE_DATA = [
@@ -191,6 +196,7 @@ function Sidebar({ tab, setTab, onLogout }: { tab: string; setTab: (t: string) =
   const links = [
     { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { id: "products", icon: Package, label: "Products" },
+    { id: "finance", icon: Wallet, label: "Finance" },
     { id: "analytics", icon: BarChart2, label: "Analytics" },
   ];
 
@@ -731,20 +737,73 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
               placeholder="e.g. Supplements, Beauty, Vitamins" />
           </div>
 
-          {/* prices */}
+          {/* prices — 3 fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-white/60 text-sm mb-2 block">Price (UZS)</label>
+              <label className="text-white/60 text-sm mb-2 block">Selling Price — Narx (UZS)</label>
               <input type="number" value={form.price || ""} onChange={e => set("price", Number(e.target.value))}
                 className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/60 transition"
                 placeholder="e.g. 285000" />
             </div>
             <div>
-              <label className="text-white/60 text-sm mb-2 block">Old Price (UZS)</label>
+              <label className="text-white/60 text-sm mb-2 block">Old Price — Chegirma (UZS)</label>
               <input type="number" value={form.oldPrice ?? ""} onChange={e => set("oldPrice", e.target.value ? Number(e.target.value) : undefined)}
                 className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/60 transition"
                 placeholder="Leave blank if no discount" />
             </div>
+          </div>
+
+          {/* cost price + profit calculator */}
+          <div className="space-y-3">
+            <div>
+              <label className="text-white/60 text-sm mb-2 block">Sebestoymost — Cost Price (UZS)</label>
+              <input type="number" value={form.costPrice ?? ""} onChange={e => set("costPrice", e.target.value ? Number(e.target.value) : undefined)}
+                className="w-full h-11 px-4 bg-white/5 border border-orange-500/30 rounded-xl text-white focus:outline-none focus:border-orange-500/60 transition"
+                placeholder="Mahsulot tannarxi…" />
+            </div>
+
+            {/* live profit calculator */}
+            {form.costPrice !== undefined && form.price > 0 && (() => {
+              const profit = form.price - form.costPrice;
+              const margin = form.price > 0 ? (profit / form.price) * 100 : 0;
+              const isPositive = profit >= 0;
+              return (
+                <div className={`rounded-2xl border p-4 ${
+                  isPositive ? "bg-emerald-500/8 border-emerald-500/20" : "bg-red-500/8 border-red-500/20"
+                }`}>
+                  <div className="text-white/50 text-xs mb-3 uppercase tracking-wider font-medium">📊 Foyda hisobi</div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center">
+                      <div className="text-white/40 text-[11px] mb-1">Narx</div>
+                      <div className="text-white text-sm font-bold">{fmt(form.price)}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-white/40 text-[11px] mb-1">Tannarx</div>
+                      <div className="text-orange-400 text-sm font-bold">{fmt(form.costPrice)}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-white/40 text-[11px] mb-1">Foyda</div>
+                      <div className={`text-sm font-bold ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
+                        {isPositive ? "+" : ""}{fmt(profit)}
+                      </div>
+                    </div>
+                  </div>
+                  {/* margin bar */}
+                  <div className="mt-3">
+                    <div className="flex justify-between text-[11px] mb-1">
+                      <span className="text-white/40">Foyda marjasi</span>
+                      <span className={isPositive ? "text-emerald-400" : "text-red-400"}>{margin.toFixed(1)}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-white/8 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${isPositive ? "bg-gradient-to-r from-emerald-500 to-teal-400" : "bg-red-500"}`}
+                        style={{ width: `${Math.min(Math.abs(margin), 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* badge */}
@@ -800,6 +859,7 @@ const EMPTY_PRODUCT = (): Product => ({
   name: "",
   category: "",
   price: 0,
+  costPrice: undefined,
   rating: 5.0,
   reviews: 0,
   image: GALLERY_IMAGES[0].url,
@@ -1034,6 +1094,214 @@ function AnalyticsTab() {
 }
 
 /* ══════════════════════════════════════════════════════
+   FINANCE TAB — buxgalteriya hisobi
+══════════════════════════════════════════════════════ */
+function FinanceTab({ products }: { products: Product[] }) {
+  const withCost = products.filter(p => p.costPrice !== undefined && p.costPrice > 0);
+
+  const totalRevenue = products.reduce((s, p) => s + p.price, 0);
+  const totalCost = withCost.reduce((s, p) => s + (p.costPrice ?? 0), 0);
+  const totalProfit = withCost.reduce((s, p) => s + (p.price - (p.costPrice ?? 0)), 0);
+  const avgMargin = withCost.length
+    ? withCost.reduce((s, p) => s + ((p.price - (p.costPrice ?? 0)) / p.price) * 100, 0) / withCost.length
+    : 0;
+
+  /* chart data — cost vs profit stacked */
+  const chartData = withCost.map(p => {
+    const cost = p.costPrice ?? 0;
+    const profit = p.price - cost;
+    const margin = (profit / p.price) * 100;
+    return {
+      name: p.name.split(" ").slice(0, 2).join(" "),
+      fullName: p.name,
+      cost,
+      profit,
+      margin: parseFloat(margin.toFixed(1)),
+      price: p.price,
+    };
+  });
+
+  /* monthly profit trend (simulated) */
+  const trendData = [
+    { month: "Jan", daromad: 12400000, tannarx: 7200000, foyda: 5200000 },
+    { month: "Feb", daromad: 15800000, tannarx: 9100000, foyda: 6700000 },
+    { month: "Mar", daromad: 18200000, tannarx: 10400000, foyda: 7800000 },
+    { month: "Apr", daromad: 16500000, tannarx: 9800000, foyda: 6700000 },
+    { month: "May", daromad: 22100000, tannarx: 12500000, foyda: 9600000 },
+    { month: "Jun", daromad: 28400000, tannarx: 15800000, foyda: 12600000 },
+    { month: "Jul", daromad: 31200000, tannarx: 17100000, foyda: 14100000 },
+  ];
+
+  const marginColor = (m: number) =>
+    m >= 40 ? "#10b981" : m >= 20 ? "#f59e0b" : "#ef4444";
+
+  return (
+    <div className="p-8 space-y-8">
+      {/* summary cards */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
+        <StatCard icon={DollarSign} label="Jami Daromad" value={`${fmt(totalRevenue)} UZS`} sub="+18.2%" up color="bg-blue-500/20" />
+        <StatCard icon={ShoppingCart} label="Jami Tannarx" value={`${fmt(totalCost)} UZS`} sub="Sebestoymost" up={false} color="bg-orange-500/20" />
+        <StatCard icon={TrendingUp} label="Sof Foyda" value={`${fmt(totalProfit)} UZS`} sub="+12.4%" up color="bg-emerald-500/20" />
+        <StatCard icon={BarChart2} label="O'rtacha Marja" value={`${avgMargin.toFixed(1)}%`} sub="Avg margin" up color="bg-purple-500/20" />
+      </div>
+
+      {/* daromad vs tannarx vs foyda — stacked bar */}
+      {withCost.length > 0 && (
+        <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h3 className="text-white font-semibold">Narx / Tannarx / Foyda</h3>
+              <p className="text-white/40 text-sm mt-0.5">Har bir mahsulot bo'yicha buxgalteriya tahlili</p>
+            </div>
+            <div className="flex items-center gap-4 text-xs">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-orange-400 inline-block" /> Tannarx</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" /> Foyda</span>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <ComposedChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
+              <XAxis dataKey="name" tick={{ fill: "#ffffff50", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: "#ffffff40", fontSize: 11 }} axisLine={false} tickLine={false}
+                tickFormatter={v => `${(v / 1000).toFixed(0)}K`} />
+              <Tooltip
+                contentStyle={{ backgroundColor: "#1c2333", border: "1px solid #ffffff15", borderRadius: 12 }}
+                labelStyle={{ color: "#fff", fontWeight: 600 }}
+                formatter={(v: number, name: string) => [
+                  `${fmt(v)} UZS`,
+                  name === "cost" ? "Tannarx" : name === "profit" ? "Foyda" : name
+                ]}
+              />
+              <Bar dataKey="cost" stackId="a" fill="#f97316" radius={[0,0,6,6]} name="cost" />
+              <Bar dataKey="profit" stackId="a" fill="#10b981" radius={[6,6,0,0]} name="profit" />
+              <Line type="monotone" dataKey="price" stroke="#6366f1" strokeWidth={2}
+                dot={{ fill: "#6366f1", r: 4 }} name="Narx" />
+            </ComposedChart>
+          </ResponsiveContainer>
+          <div className="flex items-center gap-6 mt-3 justify-center">
+            <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-4 h-0.5 bg-indigo-500 inline-block" /> Sotuv narxi</span>
+          </div>
+        </div>
+      )}
+
+      {/* monthly profit trend */}
+      <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
+        <h3 className="text-white font-semibold mb-1">Oylik Foyda Trendi</h3>
+        <p className="text-white/40 text-sm mb-6">Daromad, Tannarx va Sof Foyda dinamikasi</p>
+        <ResponsiveContainer width="100%" height={220}>
+          <AreaChart data={trendData}>
+            <defs>
+              <linearGradient id="gradDar" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="gradFoy" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+            <XAxis dataKey="month" tick={{ fill: "#ffffff40", fontSize: 12 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: "#ffffff40", fontSize: 11 }} axisLine={false} tickLine={false}
+              tickFormatter={v => `${(v/1000000).toFixed(0)}M`} />
+            <Tooltip
+              contentStyle={{ backgroundColor: "#1c2333", border: "1px solid #ffffff15", borderRadius: 12 }}
+              labelStyle={{ color: "#ffffff80" }}
+              formatter={(v: number) => [`${fmt(v)} UZS`]}
+            />
+            <Area type="monotone" dataKey="daromad" stroke="#6366f1" strokeWidth={2} fill="url(#gradDar)" name="Daromad" />
+            <Area type="monotone" dataKey="foyda" stroke="#10b981" strokeWidth={2} fill="url(#gradFoy)" name="Sof Foyda" />
+          </AreaChart>
+        </ResponsiveContainer>
+        <div className="flex items-center gap-6 mt-3 justify-center">
+          <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-3 h-0.5 bg-indigo-500 inline-block" /> Daromad</span>
+          <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-3 h-0.5 bg-emerald-500 inline-block" /> Sof Foyda</span>
+        </div>
+      </div>
+
+      {/* product profit table */}
+      {withCost.length > 0 ? (
+        <div className="bg-[#161b22] border border-white/6 rounded-2xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-white/6">
+            <h3 className="text-white font-semibold">Mahsulotlar bo'yicha Foyda Tahlili</h3>
+            <p className="text-white/40 text-sm mt-0.5">Har bir mahsulotning rentabelligi</p>
+          </div>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/6">
+                <th className="text-left text-white/30 text-xs font-medium px-6 py-3">Mahsulot</th>
+                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Narx</th>
+                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Tannarx</th>
+                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Foyda</th>
+                <th className="text-right text-white/30 text-xs font-medium px-6 py-3">Marja</th>
+              </tr>
+            </thead>
+            <tbody>
+              {withCost.map((p, i) => {
+                const cost = p.costPrice ?? 0;
+                const profit = p.price - cost;
+                const margin = (profit / p.price) * 100;
+                const clr = marginColor(margin);
+                return (
+                  <tr key={p.id} className={`border-b border-white/4 hover:bg-white/[0.02] transition ${i === withCost.length - 1 ? "border-0" : ""}`}>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <img src={p.image} alt={p.name} className="w-9 h-9 rounded-xl object-cover bg-white/5" />
+                        <div>
+                          <div className="text-white text-sm font-medium truncate max-w-[180px]">{p.name}</div>
+                          <div className="text-white/30 text-xs">{p.category}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <span className="text-white text-sm">{fmt(p.price)}</span>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <span className="text-orange-400 text-sm">{fmt(cost)}</span>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <span className={`text-sm font-semibold ${profit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                        {profit >= 0 ? "+" : ""}{fmt(profit)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="w-16 h-1.5 rounded-full bg-white/8">
+                          <div className="h-full rounded-full" style={{ width: `${Math.min(margin, 100)}%`, backgroundColor: clr }} />
+                        </div>
+                        <span className="text-sm font-semibold w-12 text-right" style={{ color: clr }}>
+                          {margin.toFixed(1)}%
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-white/10 bg-white/[0.02]">
+                <td className="px-6 py-4 text-white/50 text-sm font-medium">Jami</td>
+                <td className="px-4 py-4 text-right text-white font-semibold text-sm">{fmt(totalRevenue)}</td>
+                <td className="px-4 py-4 text-right text-orange-400 font-semibold text-sm">{fmt(totalCost)}</td>
+                <td className="px-4 py-4 text-right text-emerald-400 font-bold text-sm">+{fmt(totalProfit)}</td>
+                <td className="px-6 py-4 text-right text-emerald-400 font-bold text-sm">{avgMargin.toFixed(1)}%</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      ) : (
+        <div className="bg-[#161b22] border border-white/6 rounded-2xl p-12 text-center">
+          <Wallet className="w-10 h-10 text-white/20 mx-auto mb-3" />
+          <div className="text-white/50 text-sm">Sebestoymost kiritilmagan</div>
+          <div className="text-white/30 text-xs mt-1">Mahsulotlarni tahrirlang va tannarx qo'shing</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+/* ══════════════════════════════════════════════════════
    MAIN PAGE
 ══════════════════════════════════════════════════════ */
 function AdminPage() {
@@ -1063,6 +1331,7 @@ function AdminPage() {
   const TAB_TITLES: Record<string, string> = {
     dashboard: "Dashboard",
     products: "Products",
+    finance: "💰 Finance — Moliyaviy Hisobot",
     analytics: "Analytics",
   };
 
@@ -1075,6 +1344,7 @@ function AdminPage() {
         <div className="flex-1 overflow-auto">
           {tab === "dashboard" && <DashboardTab products={products} />}
           {tab === "products" && <ProductsTab products={products} onUpdate={handleProductUpdate} />}
+          {tab === "finance" && <FinanceTab products={products} />}
           {tab === "analytics" && <AnalyticsTab />}
         </div>
       </div>
