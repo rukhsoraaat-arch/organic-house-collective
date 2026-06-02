@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+
 import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard, Package, LogOut, TrendingUp, ShoppingCart,
@@ -10,8 +11,9 @@ import {
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  ComposedChart, Legend, Cell, ReferenceLine,
+  ComposedChart,
 } from "recharts";
+
 
 
 export const Route = createFileRoute("/admin")({
@@ -763,9 +765,11 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
             </div>
 
             {/* live profit calculator */}
-            {form.costPrice !== undefined && form.price > 0 && (() => {
-              const profit = form.price - form.costPrice;
-              const margin = form.price > 0 ? (profit / form.price) * 100 : 0;
+            {(() => {
+              const cp = form.costPrice;
+              if (cp === undefined || form.price <= 0) return null;
+              const profit = form.price - cp;
+              const margin = (profit / form.price) * 100;
               const isPositive = profit >= 0;
               return (
                 <div className={`rounded-2xl border p-4 ${
@@ -779,7 +783,7 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
                     </div>
                     <div className="text-center">
                       <div className="text-white/40 text-[11px] mb-1">Tannarx</div>
-                      <div className="text-orange-400 text-sm font-bold">{fmt(form.costPrice)}</div>
+                      <div className="text-orange-400 text-sm font-bold">{fmt(cp)}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-white/40 text-[11px] mb-1">Foyda</div>
@@ -804,6 +808,7 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
                 </div>
               );
             })()}
+
           </div>
 
           {/* badge */}
