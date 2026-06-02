@@ -5,8 +5,9 @@ import {
   LayoutDashboard, Package, LogOut, TrendingUp, ShoppingCart,
   Users, DollarSign, Edit2, Save, X, Upload, Eye, EyeOff,
   ChevronUp, ChevronDown, Star, BarChart2, Leaf, Search,
-  Bell, Image as ImageIcon, ArrowUpRight, Wallet,
+  Bell, Image as ImageIcon, ArrowUpRight, Wallet, Settings as SettingsIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar,
@@ -200,6 +201,7 @@ function Sidebar({ tab, setTab, onLogout }: { tab: string; setTab: (t: string) =
     { id: "products", icon: Package, label: "Товары" },
     { id: "finance", icon: Wallet, label: "Финансы" },
     { id: "analytics", icon: BarChart2, label: "Аналитика" },
+    { id: "settings", icon: SettingsIcon, label: "Настройки" },
   ];
 
   return (
@@ -1307,6 +1309,191 @@ function FinanceTab({ products }: { products: Product[] }) {
 
 
 /* ══════════════════════════════════════════════════════
+   SETTINGS TAB
+══════════════════════════════════════════════════════ */
+function SettingsTab() {
+  const [settings, setSettings] = useState({
+    tgToken: "",
+    tgChatId: "",
+    tgBotUsername: "",
+    clickServiceId: "",
+    clickMerchantId: "",
+    paymeMerchantId: "",
+  });
+  const [testLoading, setTestLoading] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("ohc_settings");
+      if (raw) {
+        setSettings((prev) => ({ ...prev, ...JSON.parse(raw) }));
+      }
+    } catch {}
+  }, []);
+
+  const handleSave = () => {
+    localStorage.setItem("ohc_settings", JSON.stringify(settings));
+    toast.success("Настройки успешно сохранены!");
+  };
+
+  const handleSendTestMessage = async () => {
+    if (!settings.tgToken || !settings.tgChatId) {
+      toast.error("Введите Token и Chat ID для отправки теста");
+      return;
+    }
+    setTestLoading(true);
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${settings.tgToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: settings.tgChatId,
+          text: "🔔 *Тестовое сообщение* от панели управления Organic House!\nИнтеграция настроена успешно. 👍",
+          parse_mode: "Markdown",
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        toast.success("Тестовое сообщение отправлено!");
+      } else {
+        toast.error(`Ошибка Telegram API: ${data.description}`);
+      }
+    } catch (e) {
+      toast.error("Не удалось подключиться к Telegram API");
+    } finally {
+      setTestLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-6 space-y-6 max-w-4xl text-white">
+      <div>
+        <h2 className="text-2xl font-bold font-display">Настройки интеграций</h2>
+        <p className="text-white/40 text-sm mt-1">
+          Настройте Telegram-ботов и платежные системы Click/Payme для вашего магазина.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        
+        {/* Telegram Section */}
+        <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-white/6">
+            <span className="text-xl">✈️</span>
+            <h3 className="font-semibold text-base">Интеграция с Telegram</h3>
+          </div>
+          
+          <div className="space-y-1.5">
+            <label className="text-xs text-white/50 font-medium">Telegram Bot Token</label>
+            <input
+              type="text"
+              placeholder="7249156327:AAH0dM0X16d_cT6C2U_w-M1h4YlZ..."
+              value={settings.tgToken}
+              onChange={(e) => setSettings({ ...settings, tgToken: e.target.value })}
+              className="w-full h-10 px-4 rounded-xl bg-[#0d1117] border border-white/10 focus:border-emerald-500 focus:outline-none transition text-sm font-mono text-white/80"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs text-white/50 font-medium">Chat ID / Channel ID</label>
+            <input
+              type="text"
+              placeholder="-1002244837894"
+              value={settings.tgChatId}
+              onChange={(e) => setSettings({ ...settings, tgChatId: e.target.value })}
+              className="w-full h-10 px-4 rounded-xl bg-[#0d1117] border border-white/10 focus:border-emerald-500 focus:outline-none transition text-sm font-mono text-white/80"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs text-white/50 font-medium">Username бота (без @, для перехода пользователя)</label>
+            <div className="flex">
+              <span className="h-10 px-3 bg-white/5 border border-r-0 border-white/10 rounded-l-xl flex items-center text-xs text-white/40 font-medium">t.me/</span>
+              <input
+                type="text"
+                placeholder="OrganicHouseOrderBot"
+                value={settings.tgBotUsername}
+                onChange={(e) => setSettings({ ...settings, tgBotUsername: e.target.value })}
+                className="flex-1 h-10 px-4 rounded-r-xl bg-[#0d1117] border border-white/10 focus:border-emerald-500 focus:outline-none transition text-sm text-white/80"
+              />
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={handleSendTestMessage}
+              disabled={testLoading}
+              className="w-full h-10 bg-white/5 hover:bg-white/10 text-white/80 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              {testLoading ? "Отправка..." : "Проверить соединение (Тест)"}
+            </button>
+          </div>
+        </div>
+
+        {/* Payments Section */}
+        <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-white/6">
+            <span className="text-xl">💳</span>
+            <h3 className="font-semibold text-base">Платежные системы</h3>
+          </div>
+
+          <div className="space-y-3">
+            <div className="text-xs font-bold text-sky-400 uppercase tracking-wider">Click.uz</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-white/50 font-medium">Service ID</label>
+                <input
+                  type="text"
+                  placeholder="32145"
+                  value={settings.clickServiceId}
+                  onChange={(e) => setSettings({ ...settings, clickServiceId: e.target.value })}
+                  className="w-full h-10 px-4 rounded-xl bg-[#0d1117] border border-white/10 focus:border-emerald-500 focus:outline-none transition text-sm text-white/80"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-white/50 font-medium">Merchant ID</label>
+                <input
+                  type="text"
+                  placeholder="24512"
+                  value={settings.clickMerchantId}
+                  onChange={(e) => setSettings({ ...settings, clickMerchantId: e.target.value })}
+                  className="w-full h-10 px-4 rounded-xl bg-[#0d1117] border border-white/10 focus:border-emerald-500 focus:outline-none transition text-sm text-white/80"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <div className="text-xs font-bold text-teal-400 uppercase tracking-wider">Payme.uz</div>
+            <div className="space-y-1.5">
+              <label className="text-xs text-white/50 font-medium">Merchant ID</label>
+              <input
+                type="text"
+                placeholder="63f5383a8b417bb12ab125da"
+                value={settings.paymeMerchantId}
+                onChange={(e) => setSettings({ ...settings, paymeMerchantId: e.target.value })}
+                className="w-full h-10 px-4 rounded-xl bg-[#0d1117] border border-white/10 focus:border-emerald-500 focus:outline-none transition text-sm text-white/80"
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div className="flex justify-end pt-4">
+        <button
+          onClick={handleSave}
+          className="h-12 px-8 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition shadow-lift cursor-pointer"
+        >
+          Сохранить все настройки
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+/* ══════════════════════════════════════════════════════
    MAIN PAGE
 ══════════════════════════════════════════════════════ */
 function AdminPage() {
@@ -1338,6 +1525,7 @@ function AdminPage() {
     products: "Товары",
     finance: "💰 Финансы — Бухгалтерия",
     analytics: "Аналитика",
+    settings: "⚙️ Настройки интеграций",
   };
 
   return (
@@ -1350,6 +1538,7 @@ function AdminPage() {
           {tab === "dashboard" && <DashboardTab products={products} />}
           {tab === "products" && <ProductsTab products={products} onUpdate={handleProductUpdate} />}
           {tab === "finance" && <FinanceTab products={products} />}
+          {tab === "settings" && <SettingsTab />}
           {tab === "analytics" && <AnalyticsTab />}
         </div>
       </div>
