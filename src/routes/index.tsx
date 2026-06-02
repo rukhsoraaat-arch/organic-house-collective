@@ -128,22 +128,23 @@ function Stat({ n, l }: { n: string; l: string }) {
 
 /* ---------- VALUE ---------- */
 function ValueStrip() {
+  const { t } = useLang();
   const items = [
-    { Icon: Leaf, t: "100% Organic", s: "Certified clean sourcing" },
-    { Icon: Truck, t: "Fast delivery", s: "Same-day in Tashkent" },
-    { Icon: ShieldCheck, t: "Authentic", s: "Direct from brands" },
-    { Icon: Sparkles, t: "Loyalty points", s: "Earn with every order" },
+    { Icon: Leaf, t: t.valueStrip.organicTitle, s: t.valueStrip.organicSub },
+    { Icon: Truck, t: t.valueStrip.deliveryTitle, s: t.valueStrip.deliverySub },
+    { Icon: ShieldCheck, t: t.valueStrip.authTitle, s: t.valueStrip.authSub },
+    { Icon: Sparkles, t: t.valueStrip.loyaltyTitle, s: t.valueStrip.loyaltySub },
   ];
   return (
     <section className="border-y border-border bg-secondary/40">
       <div className="container mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
-        {items.map(({ Icon, t, s }) => (
-          <div key={t} className="flex items-center gap-3">
+        {items.map(({ Icon, t: title, s }) => (
+          <div key={title} className="flex items-center gap-3">
             <div className="size-11 rounded-full bg-card grid place-items-center text-forest shadow-soft">
               <Icon className="size-5" />
             </div>
             <div>
-              <div className="font-semibold text-sm text-forest">{t}</div>
+              <div className="font-semibold text-sm text-forest">{title}</div>
               <div className="text-xs text-muted-foreground">{s}</div>
             </div>
           </div>
@@ -158,11 +159,11 @@ function Categories() {
   const { t } = useLang();
   const cats = [
     { name: t.nav.vitamins, img: catVit, count: "180+ items", size: "lg" },
-    { name: t.nav.organic, img: catOrg, count: "240+ items" },
+    { name: t.nav.desserts, img: catOrg, count: "90+ items" },
     { name: t.nav.sugarFree, img: catSf, count: "90+ items" },
     { name: t.nav.glutenFree, img: catGf, count: "65+ items" },
-    { name: t.nav.sports, img: catSp, count: "110+ items" },
-    { name: "Drinks & Beverages", img: catDr, count: "70+ items" },
+    { name: t.nav.bread, img: catSp, count: "110+ items" },
+    { name: t.nav.drinks, img: catDr, count: "70+ items" },
   ];
   return (
     <section className="container mx-auto px-6 py-20 md:py-28">
@@ -182,6 +183,7 @@ function Categories() {
 function CategoryCard({
   cat, className = "", large = false,
 }: { cat: { name: string; img: string; count: string }; className?: string; large?: boolean }) {
+  const { t } = useLang();
   return (
     <a href="#" className={`group relative overflow-hidden rounded-3xl ${className}`}>
       <img src={cat.img} alt={cat.name} loading="lazy" width={800} height={1000} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -192,7 +194,7 @@ function CategoryCard({
           {cat.name}
         </h3>
         <div className="mt-3 flex items-center gap-2 text-sm opacity-0 group-hover:opacity-100 transition">
-          Explore <ArrowRight className="size-4" />
+          {t.universe.explore} <ArrowRight className="size-4" />
         </div>
       </div>
     </a>
@@ -203,28 +205,28 @@ function CategoryCard({
 function VitaminUniverse() {
   const { t } = useLang();
   const groups = [
-    { name: "Vitamins for Kids", count: 24 },
-    { name: "Vitamins for Women", count: 38 },
-    { name: "Vitamins for Men", count: 32 },
-    { name: "Vitamins for Pregnancy", count: 18 },
-    { name: "Immunity Support", count: 41 },
-    { name: "Beauty & Skin", count: 27 },
-    { name: "Hair & Nails", count: 19 },
-    { name: "Weight Loss", count: 22 },
-    { name: "Sports & Performance", count: 35 },
-    { name: "Sleep & Calm", count: 16 },
-    { name: "Brain & Focus", count: 21 },
-    { name: "Stress Relief", count: 15 },
-    { name: "Energy & Vitality", count: 28 },
-    { name: "Omega 3", count: 14 },
-    { name: "Magnesium", count: 12 },
-    { name: "Zinc", count: 9 },
-    { name: "Collagen", count: 17 },
-    { name: "Vitamin D", count: 23 },
-    { name: "Vitamin C", count: 19 },
-    { name: "Probiotics", count: 26 },
-    { name: "Multivitamins", count: 31 },
-    { name: "Superfoods Mix", count: 18 },
+    { name: t.universe.kids, count: 24 },
+    { name: t.universe.women, count: 38 },
+    { name: t.universe.men, count: 32 },
+    { name: t.universe.pregnancy, count: 18 },
+    { name: t.universe.immunity, count: 41 },
+    { name: t.universe.beauty, count: 27 },
+    { name: t.universe.hair, count: 19 },
+    { name: t.universe.weight, count: 22 },
+    { name: t.universe.sports, count: 35 },
+    { name: t.universe.sleep, count: 16 },
+    { name: t.universe.brain, count: 21 },
+    { name: t.universe.stress, count: 15 },
+    { name: t.universe.energy, count: 28 },
+    { name: t.universe.omega, count: 14 },
+    { name: t.universe.magnesium, count: 12 },
+    { name: t.universe.zinc, count: 9 },
+    { name: t.universe.collagen, count: 17 },
+    { name: t.universe.vitD, count: 23 },
+    { name: t.universe.vitC, count: 19 },
+    { name: t.universe.probiotics, count: 26 },
+    { name: t.universe.multivitamins, count: 31 },
+    { name: t.universe.superfoods, count: 18 },
   ];
 
   return (
@@ -244,7 +246,7 @@ function VitaminUniverse() {
             <p className="mt-4 text-cream/70 max-w-xl">{t.sections.vitaminUniverseSub}</p>
           </div>
           <a href="#" className="inline-flex items-center gap-2 text-gold hover:text-cream transition">
-            View all <ArrowRight className="size-4" />
+            {t.universe.viewAll} <ArrowRight className="size-4" />
           </a>
         </div>
 
@@ -303,19 +305,20 @@ function Bestsellers() {
 
 /* ---------- PROMO SPLIT ---------- */
 function PromoSplit() {
+  const { t } = useLang();
   return (
     <section className="container mx-auto px-6 pb-20 md:pb-28 grid md:grid-cols-2 gap-5">
       <PromoCard
-        eyebrow="Seasonal — Winter immunity"
-        title="Strengthen the season."
-        desc="Build your defence with vitamin C, zinc and elderberry rituals."
+        eyebrow={t.promo.seasonalEyebrow}
+        title={t.promo.seasonalTitle}
+        desc={t.promo.seasonalDesc}
         img={catVit}
         dark
       />
       <PromoCard
-        eyebrow="Sugar-free desserts"
-        title="Sweet, without the sugar."
-        desc="Indulgent treats made for everyday wellbeing."
+        eyebrow={t.promo.sugarFreeEyebrow}
+        title={t.promo.sugarFreeTitle}
+        desc={t.promo.sugarFreeDesc}
         img={catSf}
       />
     </section>
@@ -325,6 +328,7 @@ function PromoSplit() {
 function PromoCard({ eyebrow, title, desc, img, dark = false }: {
   eyebrow: string; title: string; desc: string; img: string; dark?: boolean;
 }) {
+  const { t } = useLang();
   return (
     <a href="#" className="relative group overflow-hidden rounded-3xl aspect-[4/3] md:aspect-[16/10]">
       <img src={img} alt={title} loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -334,7 +338,7 @@ function PromoCard({ eyebrow, title, desc, img, dark = false }: {
         <h3 className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight max-w-md text-balance">{title}</h3>
         <p className={`mt-3 max-w-sm text-sm ${dark ? "text-cream/80" : "text-forest/70"}`}>{desc}</p>
         <div className="mt-5 inline-flex items-center gap-2 font-medium">
-          Shop now <ArrowRight className="size-4 group-hover:translate-x-1 transition" />
+          {t.promo.shopNow} <ArrowRight className="size-4 group-hover:translate-x-1 transition" />
         </div>
       </div>
     </a>
@@ -367,9 +371,9 @@ function Brands() {
 function Journal() {
   const { t } = useLang();
   const posts = [
-    { tag: "Nutrition", title: "How to read a supplement label like a pro", img: catVit, read: "5 min read" },
-    { tag: "Recipes", title: "Sugar-free desserts for everyday wellbeing", img: catSf, read: "8 min read" },
-    { tag: "Wellness", title: "Building your morning ritual with adaptogens", img: catDr, read: "6 min read" },
+    { tag: t.journal.post1Tag, title: t.journal.post1Title, img: catVit, read: t.journal.post1Read },
+    { tag: t.journal.post2Tag, title: t.journal.post2Title, img: catSf, read: t.journal.post2Read },
+    { tag: t.journal.post3Tag, title: t.journal.post3Title, img: catDr, read: t.journal.post3Read },
   ];
   return (
     <section className="container mx-auto px-6 py-20 md:py-28">
@@ -381,7 +385,7 @@ function Journal() {
           <h2 className="font-display text-4xl md:text-5xl text-forest text-balance max-w-xl">{t.sections.journalSub}</h2>
         </div>
         <a href="#" className="inline-flex items-center gap-2 text-forest font-medium hover:gap-3 transition-all">
-          All articles <ArrowRight className="size-4" />
+          {t.journal.allArticles} <ArrowRight className="size-4" />
         </a>
       </div>
 
@@ -390,7 +394,7 @@ function Journal() {
           <a key={p.title} href="#" className="group">
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-5">
               <img src={p.img} alt={p.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              {p.tag === "Wellness" && (
+              {p.tag === t.journal.post3Tag && (
                 <div className="absolute inset-0 grid place-items-center">
                   <div className="size-16 rounded-full bg-cream/95 grid place-items-center shadow-lift group-hover:scale-110 transition">
                     <Play className="size-6 text-forest fill-forest ml-1" />
@@ -445,6 +449,7 @@ function Newsletter() {
 
 /* ---------- SECTION HEADER ---------- */
 function SectionHeader({ title, sub }: { title: string; sub: string }) {
+  const { t } = useLang();
   return (
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 md:mb-12">
       <div>
@@ -452,7 +457,7 @@ function SectionHeader({ title, sub }: { title: string; sub: string }) {
         <p className="mt-3 text-muted-foreground max-w-md">{sub}</p>
       </div>
       <a href="#" className="inline-flex items-center gap-2 text-forest font-medium hover:gap-3 transition-all whitespace-nowrap">
-        View all <ArrowRight className="size-4" />
+        {t.universe.viewAll} <ArrowRight className="size-4" />
       </a>
     </div>
   );
