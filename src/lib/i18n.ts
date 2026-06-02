@@ -9,6 +9,72 @@ interface DictShape {
   product: Record<string, string>;
   footer: Record<string, string>;
   assistant: string;
+  header: {
+    freeDelivery: string;
+    storeLocator: string;
+    delivery: string;
+    help: string;
+    account: string;
+    wishlist: string;
+    cart: string;
+  };
+  valueStrip: {
+    organicTitle: string;
+    organicSub: string;
+    deliveryTitle: string;
+    deliverySub: string;
+    authTitle: string;
+    authSub: string;
+    loyaltyTitle: string;
+    loyaltySub: string;
+  };
+  promo: {
+    seasonalEyebrow: string;
+    seasonalTitle: string;
+    seasonalDesc: string;
+    sugarFreeEyebrow: string;
+    sugarFreeTitle: string;
+    sugarFreeDesc: string;
+    shopNow: string;
+  };
+  journal: {
+    post1Tag: string;
+    post1Title: string;
+    post1Read: string;
+    post2Tag: string;
+    post2Title: string;
+    post2Read: string;
+    post3Tag: string;
+    post3Title: string;
+    post3Read: string;
+    allArticles: string;
+  };
+  universe: {
+    kids: string;
+    women: string;
+    men: string;
+    pregnancy: string;
+    immunity: string;
+    beauty: string;
+    hair: string;
+    weight: string;
+    sports: string;
+    sleep: string;
+    brain: string;
+    stress: string;
+    energy: string;
+    omega: string;
+    magnesium: string;
+    zinc: string;
+    collagen: string;
+    vitD: string;
+    vitC: string;
+    probiotics: string;
+    multivitamins: string;
+    superfoods: string;
+    viewAll: string;
+    explore: string;
+  };
 }
 
 export const dict: Record<Lang, DictShape> = {
@@ -17,17 +83,15 @@ export const dict: Record<Lang, DictShape> = {
     searchPlaceholder: "Search vitamins, supplements, organic foods…",
     nav: {
       vitamins: "Vitamins & Supplements",
-      organic: "Organic",
       sugarFree: "Sugar-Free",
       glutenFree: "Gluten-Free",
       snacks: "Snacks",
-      sports: "Sports Nutrition",
-      vegan: "Vegan",
-      keto: "Keto",
-      baby: "Baby & Kids",
       beauty: "Beauty",
-      superfoods: "Superfoods",
       tea: "Tea & Coffee",
+      baby: "Baby & Kids",
+      desserts: "Desserts",
+      bread: "Bread",
+      drinks: "Drinks & Beverages",
     },
     hero: {
       eyebrow: "Pure · Organic · Trusted",
@@ -38,7 +102,7 @@ export const dict: Record<Lang, DictShape> = {
     },
     sections: {
       categories: "Shop by category",
-      categoriesSub: "Twenty curated worlds for a healthier you",
+      categoriesSub: "Curated worlds for a healthier you",
       bestsellers: "Best sellers",
       bestsellersSub: "Loved by our wellness community",
       vitaminUniverse: "The vitamin universe",
@@ -68,23 +132,87 @@ export const dict: Record<Lang, DictShape> = {
       rights: "All rights reserved.",
     },
     assistant: "Ask Organic AI",
+    header: {
+      freeDelivery: "Free delivery in Tashkent on orders over 300 000 UZS",
+      storeLocator: "Store locator",
+      delivery: "Delivery",
+      help: "Help",
+      account: "Account",
+      wishlist: "Wishlist",
+      cart: "Cart",
+    },
+    valueStrip: {
+      organicTitle: "100% Organic",
+      organicSub: "Certified clean sourcing",
+      deliveryTitle: "Fast delivery",
+      deliverySub: "Same-day in Tashkent",
+      authTitle: "Authentic",
+      authSub: "Direct from brands",
+      loyaltyTitle: "Loyalty points",
+      loyaltySub: "Earn with every order",
+    },
+    promo: {
+      seasonalEyebrow: "Seasonal — Winter immunity",
+      seasonalTitle: "Strengthen the season.",
+      seasonalDesc: "Build your defence with vitamin C, zinc and elderberry rituals.",
+      sugarFreeEyebrow: "Sugar-free desserts",
+      sugarFreeTitle: "Sweet, without the sugar.",
+      sugarFreeDesc: "Indulgent treats made for everyday wellbeing.",
+      shopNow: "Shop now",
+    },
+    journal: {
+      post1Tag: "Nutrition",
+      post1Title: "How to read a supplement label like a pro",
+      post1Read: "5 min read",
+      post2Tag: "Recipes",
+      post2Title: "Sugar-free desserts for everyday wellbeing",
+      post2Read: "8 min read",
+      post3Tag: "Wellness",
+      post3Title: "Building your morning ritual with adaptogens",
+      post3Read: "6 min read",
+      allArticles: "All articles",
+    },
+    universe: {
+      kids: "Vitamins for Kids",
+      women: "Vitamins for Women",
+      men: "Vitamins for Men",
+      pregnancy: "Vitamins for Pregnancy",
+      immunity: "Immunity Support",
+      beauty: "Beauty & Skin",
+      hair: "Hair & Nails",
+      weight: "Weight Loss",
+      sports: "Sports & Performance",
+      sleep: "Sleep & Calm",
+      brain: "Brain & Focus",
+      stress: "Stress Relief",
+      energy: "Energy & Vitality",
+      omega: "Omega 3",
+      magnesium: "Magnesium",
+      zinc: "Zinc",
+      collagen: "Collagen",
+      vitD: "Vitamin D",
+      vitC: "Vitamin C",
+      probiotics: "Probiotics",
+      multivitamins: "Multivitamins",
+      superfoods: "Superfoods Mix",
+      viewAll: "View all",
+      explore: "Explore",
+    },
   },
   ru: {
     tagline: "Премиум маркетплейс здоровья",
     searchPlaceholder: "Поиск витаминов, БАДов, органических продуктов…",
     nav: {
       vitamins: "Витамины и БАДы",
-      organic: "Органика",
       sugarFree: "Без сахара",
       glutenFree: "Без глютена",
       snacks: "Перекусы",
-      sports: "Спортпит",
-      vegan: "Веган",
-      keto: "Кето",
-      baby: "Детям",
       beauty: "Красота",
-      superfoods: "Суперфуды",
       tea: "Чай и кофе",
+      baby: "Детям",
+      desserts: "Десерты",
+      bread: "Хлеб",
+      drinks: "Напитки",
     },
     hero: {
       eyebrow: "Чисто · Органично · Проверено",
@@ -125,23 +253,87 @@ export const dict: Record<Lang, DictShape> = {
       rights: "Все права защищены.",
     },
     assistant: "Спросить Organic AI",
+    header: {
+      freeDelivery: "Бесплатная доставка по Ташкенту при заказе от 300 000 UZS",
+      storeLocator: "Наши магазины",
+      delivery: "Доставка",
+      help: "Помощь",
+      account: "Личный кабинет",
+      wishlist: "Избранное",
+      cart: "Корзина",
+    },
+    valueStrip: {
+      organicTitle: "100% Органично",
+      organicSub: "Сертифицированные источники",
+      deliveryTitle: "Быстрая доставка",
+      deliverySub: "День в день по Ташкенту",
+      authTitle: "Оригинальность",
+      authSub: "Напрямую от брендов",
+      loyaltyTitle: "Бонусные баллы",
+      loyaltySub: "Накапливайте с каждым заказом",
+    },
+    promo: {
+      seasonalEyebrow: "Сезонное — Зимний иммунитет",
+      seasonalTitle: "Укрепите организм.",
+      seasonalDesc: "Повысьте защиту с ритуалами витамина C, цинка и бузины.",
+      sugarFreeEyebrow: "Десерты без сахара",
+      sugarFreeTitle: "Сладко, но без сахара.",
+      sugarFreeDesc: "Нежные лакомства для вашего хорошего самочувствия.",
+      shopNow: "Купить сейчас",
+    },
+    journal: {
+      post1Tag: "Питание",
+      post1Title: "Как читать этикетку добавок как профессионал",
+      post1Read: "5 мин чтения",
+      post2Tag: "Рецепты",
+      post2Title: "Десерты без сахара для повседневного здоровья",
+      post2Read: "8 мин чтения",
+      post3Tag: "Здоровье",
+      post3Title: "Утренний ритуал с использованием адаптогенов",
+      post3Read: "6 мин чтения",
+      allArticles: "Все статьи",
+    },
+    universe: {
+      kids: "Витамины для детей",
+      women: "Витамины для женщин",
+      men: "Витамины для мужчин",
+      pregnancy: "Витамины при беременности",
+      immunity: "Поддержка иммунитета",
+      beauty: "Красота и кожа",
+      hair: "Волосы и ногти",
+      weight: "Снижение веса",
+      sports: "Спорт и выносливость",
+      sleep: "Сон и спокойствие",
+      brain: "Мозг и концентрация",
+      stress: "Снятие стресса",
+      energy: "Энергия и тонус",
+      omega: "Омега 3",
+      magnesium: "Магний",
+      zinc: "Цинк",
+      collagen: "Коллаген",
+      vitD: "Витамин D",
+      vitC: "Витамин C",
+      probiotics: "Пробиотики",
+      multivitamins: "Мультивитамины",
+      superfoods: "Смесь суперфудов",
+      viewAll: "Показать все",
+      explore: "Открыть",
+    },
   },
   uz: {
     tagline: "Premium Sog'liq Marketpleysi",
     searchPlaceholder: "Vitamin, BAD, organik mahsulotlarni qidirish…",
     nav: {
       vitamins: "Vitamin va BAD",
-      organic: "Organik",
       sugarFree: "Shakarsiz",
       glutenFree: "Glutensiz",
       snacks: "Yengil taomlar",
-      sports: "Sport ozuqasi",
-      vegan: "Vegan",
-      keto: "Keto",
-      baby: "Bolalar uchun",
       beauty: "Go'zallik",
-      superfoods: "Superfud",
       tea: "Choy va kofe",
+      baby: "Bolalar uchun",
+      desserts: "Desertlar",
+      bread: "Non va bulochka",
+      drinks: "Ichimliklar",
     },
     hero: {
       eyebrow: "Toza · Organik · Ishonchli",
@@ -152,7 +344,7 @@ export const dict: Record<Lang, DictShape> = {
     },
     sections: {
       categories: "Toifalar",
-      categoriesSub: "Sog'lom hayot uchun yigirma dunyo",
+      categoriesSub: "Sog'lom hayot uchun o'nta dunyo",
       bestsellers: "Eng sotilganlar",
       bestsellersSub: "Jamoamiz tanlovi",
       vitaminUniverse: "Vitaminlar olami",
@@ -182,6 +374,72 @@ export const dict: Record<Lang, DictShape> = {
       rights: "Barcha huquqlar himoyalangan.",
     },
     assistant: "Organic AI bilan so'rang",
+    header: {
+      freeDelivery: "Toshkent bo'ylab 300 000 UZS dan yuqori buyurtmalar bepul yetkaziladi",
+      storeLocator: "Do'konlarimiz",
+      delivery: "Yetkazib berish",
+      help: "Yordam",
+      account: "Kabinet",
+      wishlist: "Saralanganlar",
+      cart: "Savat",
+    },
+    valueStrip: {
+      organicTitle: "100% Organik",
+      organicSub: "Kafolatlangan tozalik",
+      deliveryTitle: "Tez yetkazib berish",
+      deliverySub: "Toshkentda o'sha kunning o'zida",
+      authTitle: "Haqiqiylik",
+      authSub: "To'g'ridan-to'g'ri brenddan",
+      loyaltyTitle: "Keshbek ballari",
+      loyaltySub: "Har bir buyurtmadan yig'ing",
+    },
+    promo: {
+      seasonalEyebrow: "Mavsumiy — Qishki immunitet",
+      seasonalTitle: "Mavsumni kuchaytiring.",
+      seasonalDesc: "Vitamin C, rux va marjon meva bilan himoyani oshiring.",
+      sugarFreeEyebrow: "Shakarsiz desertlar",
+      sugarFreeTitle: "Shirin, ammo shakarsiz.",
+      sugarFreeDesc: "Sog'ligingiz uchun ajoyib taomlar.",
+      shopNow: "Hozir xarid qilish",
+    },
+    journal: {
+      post1Tag: "Nutritsiologiya",
+      post1Title: "Qo'shimcha yorlig'ini qanday to'g'ri o'qish kerak",
+      post1Read: "5 daqiqa o'qish",
+      post2Tag: "Retseptlar",
+      post2Title: "Kundalik sog'liq uchun shakarsiz desertlar",
+      post2Read: "8 daqiqa o'qish",
+      post3Tag: "Wellness",
+      post3Title: "Adaptogenlar bilan ertalabki marosimni shakllantirish",
+      post3Read: "6 daqiqa o'qish",
+      allArticles: "Barcha maqolalar",
+    },
+    universe: {
+      kids: "Bolalar uchun vitaminlar",
+      women: "Ayollar uchun vitaminlar",
+      men: "Erkaklar uchun vitaminlar",
+      pregnancy: "Homiladorlikda vitaminlar",
+      immunity: "Immunitetni oshirish",
+      beauty: "Go'zallik va teri",
+      hair: "Soch va tirnoqlar",
+      weight: "Ozish uchun",
+      sports: "Sport va kuch-quvvat",
+      sleep: "Uyqu va tinchlanish",
+      brain: "Miya va diqqat",
+      stress: "Stressni kamaytirish",
+      energy: "Energiya va tonus",
+      omega: "Omega 3",
+      magnesium: "Magniy",
+      zinc: "Rux",
+      collagen: "Kollagen",
+      vitD: "Vitamin D",
+      vitC: "Vitamin C",
+      probiotics: "Probiotiklar",
+      multivitamins: "Multivitaminlar",
+      superfoods: "Superfud aralashmasi",
+      viewAll: "Barchasini ko'rish",
+      explore: "Ko'rish",
+    },
   },
 };
 
