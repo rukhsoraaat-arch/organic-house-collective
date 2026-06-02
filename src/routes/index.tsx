@@ -4,6 +4,9 @@ import { LangProvider, useLang } from "@/lib/lang-context";
 import { SiteHeader, AssistantButton } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard, type Product } from "@/components/product-card";
+import { useState, useEffect } from "react";
+import { CartProvider } from "@/lib/cart-context";
+import { CartDrawer } from "@/components/cart-drawer";
 
 import hero from "@/assets/hero-1.jpg";
 import catVit from "@/assets/cat-vitamins.jpg";
@@ -22,7 +25,9 @@ import prodMat from "@/assets/prod-matcha.jpg";
 export const Route = createFileRoute("/")({
   component: () => (
     <LangProvider>
-      <Home />
+      <CartProvider>
+        <Home />
+      </CartProvider>
     </LangProvider>
   ),
 });
@@ -44,6 +49,7 @@ function Home() {
       </main>
       <SiteFooter />
       <AssistantButton />
+      <CartDrawer />
     </div>
   );
 }
@@ -263,7 +269,9 @@ function VitaminUniverse() {
 /* ---------- BESTSELLERS ---------- */
 function Bestsellers() {
   const { t } = useLang();
-  const products: Product[] = [
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const defaultProducts: Product[] = [
     { id: "1", name: "Premium Omega 3 Fish Oil", category: "Supplements", price: 285000, oldPrice: 340000, rating: 4.9, reviews: 312, image: prodOmega, badge: "sale" },
     { id: "2", name: "Marine Collagen + Vitamin C", category: "Beauty", price: 420000, rating: 4.8, reviews: 198, image: prodCol, badge: "new" },
     { id: "3", name: "Vitamin D₃ 5000 IU", category: "Vitamins", price: 175000, rating: 4.9, reviews: 421, image: prodVitD, badge: "bestseller" },
@@ -271,6 +279,15 @@ function Bestsellers() {
     { id: "5", name: "Raw Almond Butter", category: "Organic", price: 145000, rating: 4.8, reviews: 89, image: prodAlm, badge: "new" },
     { id: "6", name: "Ceremonial Matcha Powder", category: "Tea & Coffee", price: 320000, rating: 4.9, reviews: 245, image: prodMat },
   ];
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("ohc_products");
+      setProducts(raw ? JSON.parse(raw) : defaultProducts);
+    } catch {
+      setProducts(defaultProducts);
+    }
+  }, []);
 
   return (
     <section className="container mx-auto px-6 py-20 md:py-28">
