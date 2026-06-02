@@ -1,6 +1,7 @@
 import { Search, Heart, ShoppingBag, User, MessageCircle, Menu, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLang } from "@/lib/lang-context";
+import { useCart } from "@/lib/cart-context";
 import type { Lang } from "@/lib/i18n";
 import logoMark from "@/assets/logo-mark.jpg";
 
@@ -12,6 +13,7 @@ const langs: { code: Lang; label: string }[] = [
 
 export function SiteHeader() {
   const { lang, setLang, t } = useLang();
+  const { totalItems, setIsCartOpen } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
 
@@ -103,7 +105,7 @@ export function SiteHeader() {
 
           <IconBtn label="Account"><User className="size-5" /></IconBtn>
           <IconBtn label="Wishlist" badge="3"><Heart className="size-5" /></IconBtn>
-          <IconBtn label="Cart" badge="2"><ShoppingBag className="size-5" /></IconBtn>
+          <IconBtn onClick={() => setIsCartOpen(true)} label="Cart" badge={totalItems > 0 ? String(totalItems) : undefined}><ShoppingBag className="size-5" /></IconBtn>
         </div>
       </div>
 
@@ -141,12 +143,13 @@ export function SiteHeader() {
 }
 
 function IconBtn({
-  children, label, badge,
-}: { children: React.ReactNode; label: string; badge?: string }) {
+  children, label, badge, onClick,
+}: { children: React.ReactNode; label: string; badge?: string; onClick?: () => void }) {
   return (
     <button
+      onClick={onClick}
       aria-label={label}
-      className="relative size-10 grid place-items-center rounded-full text-forest hover:bg-secondary transition"
+      className="relative size-10 grid place-items-center rounded-full text-forest hover:bg-secondary transition cursor-pointer"
     >
       {children}
       {badge && (
