@@ -1,5 +1,7 @@
 import { Heart, Eye, ShoppingBag, Star } from "lucide-react";
 import { useLang } from "@/lib/lang-context";
+import { useCart } from "@/lib/cart-context";
+import { toast } from "sonner";
 
 export interface Product {
   id: string;
@@ -19,6 +21,7 @@ function fmt(price: number) {
 
 export function ProductCard({ product }: { product: Product }) {
   const { t } = useLang();
+  const { addToCart } = useCart();
   const discount = product.oldPrice
     ? Math.round(100 - (product.price / product.oldPrice) * 100)
     : 0;
@@ -61,7 +64,15 @@ export function ProductCard({ product }: { product: Product }) {
 
         {/* Add to cart slide-up */}
         <div className="absolute inset-x-3 bottom-3 translate-y-16 group-hover:translate-y-0 transition-transform duration-500">
-          <button className="w-full h-11 rounded-full bg-forest text-cream text-sm font-medium flex items-center justify-center gap-2 hover:bg-forest-deep transition">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addToCart(product);
+              toast.success(t.product.addToCart + ": " + product.name);
+            }}
+            className="w-full h-11 rounded-full bg-forest text-cream text-sm font-medium flex items-center justify-center gap-2 hover:bg-forest-deep transition cursor-pointer"
+          >
             <ShoppingBag className="size-4" />
             {t.product.addToCart}
           </button>
