@@ -7,6 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -33,7 +34,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#0b0f19] px-4">
       <div className="max-w-md text-center">
         <h1 className="font-display text-2xl text-foreground">Something went wrong</h1>
         <p className="mt-2 text-sm text-muted-foreground">Please try again.</p>
@@ -56,13 +57,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Organic House — Premium Wellness Marketplace" },
       { name: "description", content: "Vitamins, supplements, organic foods, sugar-free and gluten-free goods. A curated premium marketplace for a healthy lifestyle." },
       { property: "og:title", content: "Organic House — Premium Wellness Marketplace" },
-      { property: "og:description", content: "Vitamins, supplements, organic foods, sugar-free and gluten-free goods. A curated premium marketplace for a healthy lifestyle." },
+      { property: "og:description", content: "Curated vitamins, supplements and organic goods for a healthier life." },
       { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "Organic House — Premium Wellness Marketplace" },
-      { name: "twitter:description", content: "Vitamins, supplements, organic foods, sugar-free and gluten-free goods. A curated premium marketplace for a healthy lifestyle." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/36a4ba37-4111-4af0-9b53-05f48a9c1bd2/id-preview-e4367e5c--55eb6427-ac29-4d28-82f8-933ecbfb6d03.lovable.app-1779780603406.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/36a4ba37-4111-4af0-9b53-05f48a9c1bd2/id-preview-e4367e5c--55eb6427-ac29-4d28-82f8-933ecbfb6d03.lovable.app-1779780603406.png" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -96,6 +92,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <Toaster />
     </QueryClientProvider>
   );
 }
