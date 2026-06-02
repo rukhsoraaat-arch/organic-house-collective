@@ -73,6 +73,16 @@ const GALLERY_IMAGES = [
   { url: "/assets/hero-1-D-SpCxJN.jpg", label: "Hero Banner", group: "Other" },
 ];
 
+type GalleryImage = { url: string; label: string; group: string };
+
+/* ─── CUSTOM IMAGE STORAGE ─── */
+function loadCustomImages(): GalleryImage[] {
+  try { return JSON.parse(localStorage.getItem("ohc_gallery") || "[]"); } catch { return []; }
+}
+function saveCustomImages(imgs: GalleryImage[]) {
+  localStorage.setItem("ohc_gallery", JSON.stringify(imgs));
+}
+
 function fmt(n: number) {
   return new Intl.NumberFormat("uz-UZ").format(n);
 }
@@ -388,26 +398,76 @@ function DashboardTab({ products }: { products: Product[] }) {
 }
 
 /* ══════════════════════════════════════════════════════
-   GALLERY MODAL — opens as its own overlay (z-[100])
+   GALLERY MODAL — with upload from device
 ══════════════════════════════════════════════════════ */
 function GalleryModal({ current, onSelect, onClose }: {
   current: string;
   onSelect: (url: string) => void;
   onClose: () => void;
 }) {
-  const [filter, setFilter] = useState<"All" | "Products" | "Categories" | "Other">("All");
-  const groups = ["All", "Products", "Categories", "Other"] as const;
-  const filtered = GALLERY_IMAGES.filter(img => filter === "All" || img.group === filter);
+  type FilterType = "All" | "Uploaded" | "Products" | "Categories" | "Other";
+  const [filter, setFilter] = useState<FilterType>("All");
+  const [customImgs, setCustomImgs] = useState<GalleryImage[]>(loadCustomImages);
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const allImages = [...customImgs, ...GALLERY_IMAGES];
+  const groups: FilterType[] = ["All", "Uploaded", "Products", "Categories", "Other"];
+  const filtered = allImages.filter(img => filter === "All" || img.group === filter);
+
+  /* ── File → base64 ── */
+  const processFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 5 * 1024 * 1024) { alert("File too large (max 5 MB)"); return; }
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const base64 = ev.target?.result as string;
+      const newImg: GalleryImage = {
+        url: base64,
+        label: file.name.replace(/\.[^.]+$/, ""),
+        group: "Uploaded",
+      };
+      const updated = [newImg, ...loadCustomImages()];
+      saveCustomImages(updated);
+      setCustomImgs(updated);
+      setUploading(false);
+      onSelect(base64);
+      onClose();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+    e.target.value = "";
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
+  };
+
+  const deleteCustom = (url: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = customImgs.filter(img => img.url !== url);
+    saveCustomImages(updated);
+    setCustomImgs(updated);
+  };
 
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.85)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.88)" }}
       onClick={onClose}
     >
       <div
         className="bg-[#161b22] border border-white/10 rounded-3xl w-full max-w-3xl flex flex-col shadow-2xl"
-        style={{ maxHeight: "80vh" }}
+        style={{ maxHeight: "85vh" }}
         onClick={e => e.stopPropagation()}
       >
         {/* header */}
@@ -416,84 +476,145 @@ function GalleryModal({ current, onSelect, onClose }: {
             <h2 className="text-white font-semibold text-lg">🖼 Image Gallery</h2>
             <p className="text-white/40 text-sm mt-0.5">Click an image to select it</p>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 grid place-items-center text-white/50 hover:text-white transition"
-          >
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 grid place-items-center text-white/50 hover:text-white transition">
             <X className="w-4 h-4" />
           </button>
         </div>
 
+        {/* upload zone */}
+        <div className="px-6 pt-5 pb-3 border-b border-white/6 flex-shrink-0">
+          <div
+            onDragOver={e => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => fileRef.current?.click()}
+            className={`relative cursor-pointer rounded-2xl border-2 border-dashed transition-all py-6 flex flex-col items-center justify-center gap-2 ${
+              dragging
+                ? "border-emerald-400 bg-emerald-500/10"
+                : "border-white/15 hover:border-emerald-500/50 hover:bg-white/[0.03]"
+            }`}
+          >
+            {uploading ? (
+              <>
+                <svg className="animate-spin w-7 h-7 text-emerald-400" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="text-white/50 text-sm">Uploading...</span>
+              </>
+            ) : (
+              <>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
+                  <Upload className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div className="text-center">
+                  <div className="text-white text-sm font-medium">Upload from device</div>
+                  <div className="text-white/40 text-xs mt-0.5">Click or drag & drop · JPG, PNG, WEBP · max 5 MB</div>
+                </div>
+              </>
+            )}
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileInput}
+          />
+        </div>
+
         {/* filters */}
-        <div className="px-6 py-3 border-b border-white/6 flex gap-2 flex-shrink-0">
-          {groups.map(g => (
-            <button
-              key={g}
-              onClick={() => setFilter(g)}
-              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition ${
-                filter === g
-                  ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                  : "bg-white/5 border-white/8 text-white/50 hover:text-white hover:bg-white/10"
-              }`}
-            >
-              {g} {g !== "All" && `(${GALLERY_IMAGES.filter(i => i.group === g).length})`}
-            </button>
-          ))}
+        <div className="px-6 py-3 border-b border-white/6 flex gap-2 flex-wrap flex-shrink-0">
+          {groups.map(g => {
+            const count = g === "All" ? allImages.length
+              : g === "Uploaded" ? customImgs.length
+              : GALLERY_IMAGES.filter(i => i.group === g).length;
+            return (
+              <button
+                key={g}
+                onClick={() => setFilter(g)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
+                  filter === g
+                    ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                    : "bg-white/5 border-white/8 text-white/50 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                {g} {count > 0 && <span className="opacity-60">({count})</span>}
+              </button>
+            );
+          })}
         </div>
 
         {/* grid — scrollable */}
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-            {filtered.map(img => {
-              const isSelected = current === img.url;
-              return (
-                <button
-                  key={img.url}
-                  type="button"
-                  onClick={() => { onSelect(img.url); onClose(); }}
-                  className={`group relative rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
-                    isSelected
-                      ? "border-emerald-500 shadow-lg shadow-emerald-500/30 scale-[0.98]"
-                      : "border-white/10 hover:border-emerald-500/60 hover:scale-[0.97]"
-                  }`}
-                  style={{ aspectRatio: "1 / 1" }}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.label}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-white/30">
+              <ImageIcon className="w-10 h-10 mb-3 opacity-30" />
+              <div className="text-sm">No images yet</div>
+              <div className="text-xs mt-1">Upload one from your device above</div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+              {filtered.map(img => {
+                const isSelected = current === img.url;
+                const isCustom = img.group === "Uploaded";
+                return (
+                  <div key={img.url} className="relative group">
+                    <button
+                      type="button"
+                      onClick={() => { onSelect(img.url); onClose(); }}
+                      className={`w-full rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
+                        isSelected
+                          ? "border-emerald-500 shadow-lg shadow-emerald-500/30"
+                          : "border-white/10 hover:border-emerald-500/60"
+                      }`}
+                      style={{ aspectRatio: "1 / 1" }}
+                    >
+                      <img
+                        src={img.url}
+                        alt={img.label}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition" />
 
-                  {/* dark overlay on hover */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition" />
+                      {isSelected && (
+                        <div className="absolute inset-0 bg-emerald-500/25 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
 
-                  {/* selected overlay */}
-                  {isSelected && (
-                    <div className="absolute inset-0 bg-emerald-500/25 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
-                        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent px-2 py-2">
+                        <div className="text-white text-[11px] font-medium truncate">{img.label}</div>
                       </div>
-                    </div>
-                  )}
+                    </button>
 
-                  {/* label */}
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent px-3 py-3">
-                    <div className="text-white text-xs font-medium truncate">{img.label}</div>
-                    <div className="text-white/50 text-[10px]">{img.group}</div>
+                    {/* delete uploaded image */}
+                    {isCustom && (
+                      <button
+                        type="button"
+                        onClick={e => deleteCustom(img.url, e)}
+                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-lg bg-black/70 hover:bg-red-500 text-white/70 hover:text-white opacity-0 group-hover:opacity-100 transition flex items-center justify-center z-10"
+                        title="Delete"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
                   </div>
-                </button>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* footer */}
         <div className="px-6 py-4 border-t border-white/6 flex items-center justify-between flex-shrink-0">
           <span className="text-white/30 text-sm">{filtered.length} images</span>
           <button onClick={onClose} className="px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm transition">
-            Cancel
+            Close
           </button>
         </div>
       </div>
