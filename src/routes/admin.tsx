@@ -56,6 +56,23 @@ const CATEGORY_DATA = [
   { name: "Sports", value: 7 },
 ];
 
+/* ─── GALLERY IMAGES ─── */
+const GALLERY_IMAGES = [
+  { url: "/assets/prod-omega3-C_vjyhwb.jpg", label: "Omega 3", group: "Products" },
+  { url: "/assets/prod-collagen-BqEX6mLl.jpg", label: "Collagen", group: "Products" },
+  { url: "/assets/prod-vitd-k__PCbaP.jpg", label: "Vitamin D", group: "Products" },
+  { url: "/assets/prod-chia-BWTeDBqs.jpg", label: "Chia Seeds", group: "Products" },
+  { url: "/assets/prod-almond-D45IKrfv.jpg", label: "Almond Butter", group: "Products" },
+  { url: "/assets/prod-matcha-w7IoWVtJ.jpg", label: "Matcha", group: "Products" },
+  { url: "/assets/cat-vitamins-Cg1vuWj5.jpg", label: "Vitamins", group: "Categories" },
+  { url: "/assets/cat-organic-6pbbUCGw.jpg", label: "Organic", group: "Categories" },
+  { url: "/assets/cat-sugarfree-CXyqBd--.jpg", label: "Sugar Free", group: "Categories" },
+  { url: "/assets/cat-glutenfree-BxtoAmgn.jpg", label: "Gluten Free", group: "Categories" },
+  { url: "/assets/cat-sports-UVTGH-V-.jpg", label: "Sports", group: "Categories" },
+  { url: "/assets/cat-drinks-Df7SCyVJ.jpg", label: "Drinks", group: "Categories" },
+  { url: "/assets/hero-1-D-SpCxJN.jpg", label: "Hero Banner", group: "Other" },
+];
+
 function fmt(n: number) {
   return new Intl.NumberFormat("uz-UZ").format(n);
 }
@@ -371,29 +388,131 @@ function DashboardTab({ products }: { products: Product[] }) {
 }
 
 /* ══════════════════════════════════════════════════════
-   EDIT MODAL
+   IMAGE PICKER (gallery + url tabs)
 ══════════════════════════════════════════════════════ */
-function EditModal({ product, onSave, onClose }: {
-  product: Product; onSave: (p: Product) => void; onClose: () => void;
+function ImagePicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [tab, setTab] = useState<"gallery" | "url">("gallery");
+  const [filter, setFilter] = useState<"All" | "Products" | "Categories" | "Other">("All");
+  const [urlInput, setUrlInput] = useState(value);
+
+  const groups = ["All", "Products", "Categories", "Other"] as const;
+  const filtered = GALLERY_IMAGES.filter(img => filter === "All" || img.group === filter);
+
+  return (
+    <div className="space-y-3">
+      {/* preview */}
+      <div className="flex gap-4 items-start">
+        <div className="w-20 h-20 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative">
+          <img src={value} alt="" className="w-full h-full object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0'; }} />
+          <div className="absolute inset-0 grid place-items-center pointer-events-none">
+            <ImageIcon className="w-5 h-5 text-white/20" />
+          </div>
+        </div>
+        <div className="flex-1">
+          <div className="text-white/60 text-sm mb-2 font-medium">Product Image</div>
+          {/* tab toggle */}
+          <div className="inline-flex bg-white/5 border border-white/8 rounded-xl p-1 gap-1">
+            <button onClick={() => setTab("gallery")}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
+                tab === "gallery" ? "bg-emerald-500/20 text-emerald-400" : "text-white/40 hover:text-white/60"
+              }`}>
+              🖼 Gallery
+            </button>
+            <button onClick={() => setTab("url")}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
+                tab === "url" ? "bg-emerald-500/20 text-emerald-400" : "text-white/40 hover:text-white/60"
+              }`}>
+              🔗 URL
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {tab === "gallery" && (
+        <div>
+          {/* filter chips */}
+          <div className="flex gap-2 mb-3 flex-wrap">
+            {groups.map(g => (
+              <button key={g} onClick={() => setFilter(g)}
+                className={`px-3 py-1 rounded-lg text-xs font-medium border transition ${
+                  filter === g
+                    ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                    : "bg-white/5 border-white/8 text-white/40 hover:text-white/60"
+                }`}>
+                {g}
+              </button>
+            ))}
+          </div>
+
+          {/* grid */}
+          <div className="grid grid-cols-4 gap-2 max-h-52 overflow-y-auto pr-1">
+            {filtered.map(img => (
+              <button key={img.url} onClick={() => onChange(img.url)}
+                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition group ${
+                  value === img.url
+                    ? "border-emerald-500 ring-2 ring-emerald-500/30"
+                    : "border-white/8 hover:border-emerald-500/50"
+                }`}>
+                <img src={img.url} alt={img.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }} />
+                {/* selected tick */}
+                {value === img.url && (
+                  <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+                {/* label on hover */}
+                <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] text-center py-1 opacity-0 group-hover:opacity-100 transition truncate px-1">
+                  {img.label}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "url" && (
+        <div>
+          <input
+            value={urlInput}
+            onChange={e => { setUrlInput(e.target.value); onChange(e.target.value); }}
+            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition"
+            placeholder="https://example.com/image.jpg"
+          />
+          <p className="text-white/30 text-xs mt-2">Paste any image URL from the internet</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PRODUCT FORM (shared between Edit & Add)
+══════════════════════════════════════════════════════ */
+function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabel }: {
+  form: Product;
+  setForm: (p: Product) => void;
+  onSave: () => void;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  saveLabel?: string;
 }) {
-  const [form, setForm] = useState<Product>({ ...product });
-  const [imgPreview, setImgPreview] = useState(product.image);
-
-  const set = (k: keyof Product, v: any) => setForm(f => ({ ...f, [k]: v }));
-
-  const handleImageUrl = (url: string) => {
-    set("image", url);
-    setImgPreview(url);
-  };
+  const set = (k: keyof Product, v: any) => setForm({ ...form, [k]: v });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#161b22] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-[#161b22] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl">
         {/* header */}
         <div className="flex items-center justify-between p-6 border-b border-white/6">
           <div>
-            <h2 className="text-white font-semibold text-lg">Edit Product</h2>
-            <p className="text-white/40 text-sm mt-0.5">{product.name}</p>
+            <h2 className="text-white font-semibold text-lg">{title}</h2>
+            {subtitle && <p className="text-white/40 text-sm mt-0.5">{subtitle}</p>}
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 grid place-items-center text-white/50 hover:text-white transition">
             <X className="w-4 h-4" />
@@ -401,46 +520,35 @@ function EditModal({ product, onSave, onClose }: {
         </div>
 
         <div className="p-6 space-y-5">
-          {/* image preview */}
-          <div className="flex gap-5">
-            <div className="w-28 h-28 rounded-2xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0">
-              <img src={imgPreview} alt="" className="w-full h-full object-cover"
-                onError={() => setImgPreview("/placeholder.svg")} />
-            </div>
-            <div className="flex-1">
-              <label className="text-white/60 text-sm mb-2 block">Image URL</label>
-              <div className="flex gap-2">
-                <input value={form.image} onChange={e => handleImageUrl(e.target.value)}
-                  className="flex-1 h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition"
-                  placeholder="https://... or /assets/..." />
-              </div>
-              <p className="text-white/30 text-xs mt-1.5">Paste a URL or a path like /assets/filename.jpg</p>
-            </div>
-          </div>
+          {/* image picker */}
+          <ImagePicker value={form.image} onChange={url => set("image", url)} />
 
           {/* name */}
           <div>
             <label className="text-white/60 text-sm mb-2 block">Product Name</label>
             <input value={form.name} onChange={e => set("name", e.target.value)}
-              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition" />
+              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition"
+              placeholder="e.g. Premium Omega 3 Fish Oil" />
           </div>
 
           {/* category */}
           <div>
             <label className="text-white/60 text-sm mb-2 block">Category</label>
             <input value={form.category} onChange={e => set("category", e.target.value)}
-              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition" />
+              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition"
+              placeholder="e.g. Supplements, Beauty, Vitamins" />
           </div>
 
           {/* prices */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-white/60 text-sm mb-2 block">Price (UZS)</label>
-              <input type="number" value={form.price} onChange={e => set("price", Number(e.target.value))}
-                className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/60 transition" />
+              <input type="number" value={form.price || ""} onChange={e => set("price", Number(e.target.value))}
+                className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/60 transition"
+                placeholder="e.g. 285000" />
             </div>
             <div>
-              <label className="text-white/60 text-sm mb-2 block">Old Price (UZS) — optional</label>
+              <label className="text-white/60 text-sm mb-2 block">Old Price (UZS)</label>
               <input type="number" value={form.oldPrice ?? ""} onChange={e => set("oldPrice", e.target.value ? Number(e.target.value) : undefined)}
                 className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/60 transition"
                 placeholder="Leave blank if no discount" />
@@ -469,8 +577,8 @@ function EditModal({ product, onSave, onClose }: {
             <button onClick={onClose} className="flex-1 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm font-medium transition">
               Cancel
             </button>
-            <button onClick={() => onSave(form)} className="flex-1 h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold transition flex items-center justify-center gap-2">
-              <Save className="w-4 h-4" /> Save changes
+            <button onClick={onSave} className="flex-1 h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold transition flex items-center justify-center gap-2">
+              <Save className="w-4 h-4" /> {saveLabel ?? "Save changes"}
             </button>
           </div>
         </div>
@@ -480,12 +588,43 @@ function EditModal({ product, onSave, onClose }: {
 }
 
 /* ══════════════════════════════════════════════════════
+   EDIT MODAL
+══════════════════════════════════════════════════════ */
+function EditModal({ product, onSave, onClose }: {
+  product: Product; onSave: (p: Product) => void; onClose: () => void;
+}) {
+  const [form, setForm] = useState<Product>({ ...product });
+  return (
+    <ProductForm
+      form={form} setForm={setForm}
+      onSave={() => onSave(form)} onClose={onClose}
+      title="Edit Product" subtitle={product.name}
+    />
+  );
+}
+
+const EMPTY_PRODUCT = (): Product => ({
+  id: Date.now().toString(),
+  name: "",
+  category: "",
+  price: 0,
+  rating: 5.0,
+  reviews: 0,
+  image: GALLERY_IMAGES[0].url,
+  badge: "",
+});
+
+/* ══════════════════════════════════════════════════════
    PRODUCTS TAB
 ══════════════════════════════════════════════════════ */
 function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p: Product[]) => void }) {
   const [editing, setEditing] = useState<Product | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [newForm, setNewForm] = useState<Product>(EMPTY_PRODUCT());
   const [search, setSearch] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [toast, setToast] = useState("");
+
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
 
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -493,11 +632,23 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
   );
 
   const handleSave = (updated: Product) => {
-    const next = products.map(p => p.id === updated.id ? updated : p);
-    onUpdate(next);
+    onUpdate(products.map(p => p.id === updated.id ? updated : p));
     setEditing(null);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    showToast("✅ Product updated!");
+  };
+
+  const handleAdd = () => {
+    if (!newForm.name.trim() || !newForm.price) return;
+    onUpdate([...products, { ...newForm, id: Date.now().toString() }]);
+    setAdding(false);
+    setNewForm(EMPTY_PRODUCT());
+    showToast("✅ Product added!");
+  };
+
+  const handleDelete = (id: string) => {
+    if (!confirm("Delete this product?")) return;
+    onUpdate(products.filter(p => p.id !== id));
+    showToast("🗑 Product deleted");
   };
 
   const BADGE_STYLES: Record<string, string> = {
@@ -508,19 +659,26 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
 
   return (
     <div className="p-8">
+      {/* toast */}
+      {toast && (
+        <div className="fixed top-6 right-6 z-50 bg-[#1e2733] border border-emerald-500/30 text-white text-sm px-5 py-3 rounded-2xl shadow-2xl animate-pulse">
+          {toast}
+        </div>
+      )}
+
       {/* header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-white font-semibold text-lg">Products</h2>
           <p className="text-white/40 text-sm">{products.length} total products</p>
         </div>
-        <div className="flex items-center gap-3">
-          {saved && (
-            <div className="flex items-center gap-2 text-emerald-400 text-sm bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2">
-              <Save className="w-3.5 h-3.5" /> Saved!
-            </div>
-          )}
-        </div>
+        <button onClick={() => { setNewForm(EMPTY_PRODUCT()); setAdding(true); }}
+          className="flex items-center gap-2 h-10 px-5 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-emerald-500/20">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Product
+        </button>
       </div>
 
       {/* search */}
@@ -546,7 +704,7 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
           </thead>
           <tbody>
             {filtered.map((p, i) => (
-              <tr key={p.id} className={`border-b border-white/4 hover:bg-white/2 transition ${i === filtered.length - 1 ? "border-0" : ""}`}>
+              <tr key={p.id} className={`border-b border-white/4 hover:bg-white/[0.02] transition ${i === filtered.length - 1 ? "border-0" : ""}`}>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/8 flex-shrink-0">
@@ -559,21 +717,15 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <span className="text-white/50 text-sm">{p.category}</span>
-                </td>
+                <td className="px-6 py-4"><span className="text-white/50 text-sm">{p.category}</span></td>
                 <td className="px-6 py-4">
                   <div className="text-white text-sm font-semibold">{fmt(p.price)} UZS</div>
                   {p.oldPrice && <div className="text-white/30 text-xs line-through">{fmt(p.oldPrice)} UZS</div>}
                 </td>
                 <td className="px-6 py-4">
                   {p.badge ? (
-                    <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-medium border ${BADGE_STYLES[p.badge] ?? ""}`}>
-                      {p.badge}
-                    </span>
-                  ) : (
-                    <span className="text-white/20 text-xs">—</span>
-                  )}
+                    <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-medium border ${BADGE_STYLES[p.badge] ?? ""}`}>{p.badge}</span>
+                  ) : <span className="text-white/20 text-xs">—</span>}
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-1.5 text-yellow-400">
@@ -582,18 +734,40 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
                   </div>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <button onClick={() => setEditing(p)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/15 hover:text-emerald-400 text-white/50 text-xs font-medium transition border border-white/8 hover:border-emerald-500/30">
-                    <Edit2 className="w-3 h-3" /> Edit
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    <button onClick={() => setEditing(p)}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/15 hover:text-emerald-400 text-white/50 text-xs font-medium transition border border-white/8 hover:border-emerald-500/30">
+                      <Edit2 className="w-3 h-3" /> Edit
+                    </button>
+                    <button onClick={() => handleDelete(p.id)}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/30 text-xs font-medium transition border border-white/8 hover:border-red-500/30">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {filtered.length === 0 && (
+          <div className="text-center py-16 text-white/30 text-sm">No products found</div>
+        )}
       </div>
 
+      {/* Edit modal */}
       {editing && <EditModal product={editing} onSave={handleSave} onClose={() => setEditing(null)} />}
+
+      {/* Add modal */}
+      {adding && (
+        <ProductForm
+          form={newForm} setForm={setNewForm}
+          onSave={handleAdd} onClose={() => setAdding(false)}
+          title="Add New Product"
+          subtitle="Fill in details and choose an image from the gallery"
+          saveLabel="Add Product"
+        />
+      )}
     </div>
   );
 }
