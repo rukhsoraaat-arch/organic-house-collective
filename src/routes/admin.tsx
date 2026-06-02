@@ -144,23 +144,23 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
             </div>
             <div>
               <div className="text-white font-semibold text-lg leading-none">Organic House</div>
-              <div className="text-white/40 text-xs mt-0.5">Admin Panel</div>
+              <div className="text-white/40 text-xs mt-0.5">Панель управления</div>
             </div>
           </div>
 
-          <h1 className="text-white text-2xl font-bold mb-1">Welcome back 👋</h1>
-          <p className="text-white/40 text-sm mb-8">Sign in to manage your store</p>
+          <h1 className="text-white text-2xl font-bold mb-1">С возвращением 👋</h1>
+          <p className="text-white/40 text-sm mb-8">Войдите, чтобы управлять магазином</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-white/60 text-sm mb-2 block">Password</label>
+              <label className="text-white/60 text-sm mb-2 block">Пароль</label>
               <div className="relative">
                 <input
                   type={show ? "text" : "password"}
                   value={pw}
                   onChange={e => { setPw(e.target.value); setErr(false); }}
                   className={`w-full h-12 px-4 pr-11 bg-white/5 border ${err ? "border-red-500/60" : "border-white/10"} rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition`}
-                  placeholder="Enter admin password"
+                  placeholder="Введите пароль администратора"
                   autoFocus
                 />
                 <button type="button" onClick={() => setShow(s => !s)}
@@ -168,7 +168,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
                   {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {err && <p className="text-red-400 text-xs mt-2">Incorrect password. Try again.</p>}
+              {err && <p className="text-red-400 text-xs mt-2">Неверный пароль. Попробуйте ещё раз.</p>}
             </div>
 
             <button type="submit" disabled={loading || !pw}
@@ -178,12 +178,12 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
-              ) : "Sign in"}
+              ) : "Войти"}
             </button>
           </form>
 
           <p className="text-white/20 text-xs text-center mt-8">
-            Hint: default password is <span className="text-white/40 font-mono">admin123</span>
+            Подсказка: пароль по умолчанию — <span className="text-white/40 font-mono">admin123</span>
           </p>
         </div>
       </div>
@@ -196,10 +196,10 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
 ══════════════════════════════════════════════════════ */
 function Sidebar({ tab, setTab, onLogout }: { tab: string; setTab: (t: string) => void; onLogout: () => void }) {
   const links = [
-    { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { id: "products", icon: Package, label: "Products" },
-    { id: "finance", icon: Wallet, label: "Finance" },
-    { id: "analytics", icon: BarChart2, label: "Analytics" },
+    { id: "dashboard", icon: LayoutDashboard, label: "Главная" },
+    { id: "products", icon: Package, label: "Товары" },
+    { id: "finance", icon: Wallet, label: "Финансы" },
+    { id: "analytics", icon: BarChart2, label: "Аналитика" },
   ];
 
   return (
@@ -212,7 +212,7 @@ function Sidebar({ tab, setTab, onLogout }: { tab: string; setTab: (t: string) =
           </div>
           <div>
             <div className="text-white font-semibold text-sm">Organic House</div>
-            <div className="text-white/30 text-[11px]">Admin Panel</div>
+            <div className="text-white/30 text-[11px]">Панель управления</div>
           </div>
         </div>
       </div>
@@ -236,11 +236,11 @@ function Sidebar({ tab, setTab, onLogout }: { tab: string; setTab: (t: string) =
       <div className="p-4 border-t border-white/6 space-y-1">
         <a href="/" target="_blank"
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-white/40 hover:text-white/70 hover:bg-white/5 transition">
-          <Eye className="w-4 h-4" /> View site
+          <Eye className="w-4 h-4" /> Просмотр сайта
         </a>
         <button onClick={onLogout}
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-white/40 hover:text-red-400 hover:bg-red-500/10 transition">
-          <LogOut className="w-4 h-4" /> Logout
+          <LogOut className="w-4 h-4" /> Выйти
         </button>
       </div>
     </aside>
@@ -301,21 +301,21 @@ function DashboardTab({ products }: { products: Product[] }) {
     <div className="p-8 space-y-8">
       {/* stats */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
-        <StatCard icon={DollarSign} label="Monthly Revenue" value={`${fmt(totalRevenue)} UZS`} sub="+18.2%" up color="bg-emerald-500/20" />
-        <StatCard icon={ShoppingCart} label="Total Orders" value={`${totalOrders}`} sub="+12.5%" up color="bg-blue-500/20" />
-        <StatCard icon={Users} label="Visitors" value={`${fmt(totalVisitors)}`} sub="+8.1%" up color="bg-purple-500/20" />
-        <StatCard icon={Package} label="Products" value={`${products.length}`} sub="+2 new" up color="bg-orange-500/20" />
+        <StatCard icon={DollarSign} label="Выручка за месяц" value={`${fmt(totalRevenue)} UZS`} sub="+18.2%" up color="bg-emerald-500/20" />
+        <StatCard icon={ShoppingCart} label="Всего заказов" value={`${totalOrders}`} sub="+12.5%" up color="bg-blue-500/20" />
+        <StatCard icon={Users} label="Посетители" value={`${fmt(totalVisitors)}`} sub="+8.1%" up color="bg-purple-500/20" />
+        <StatCard icon={Package} label="Товары" value={`${products.length}`} sub="+2 новых" up color="bg-orange-500/20" />
       </div>
 
       {/* revenue chart */}
       <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-white font-semibold">Revenue Overview</h3>
-            <p className="text-white/40 text-sm mt-0.5">Monthly revenue trend</p>
+            <h3 className="text-white font-semibold">Обзор выручки</h3>
+            <p className="text-white/40 text-sm mt-0.5">Ежемесячная динамика</p>
           </div>
           <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium">
-            <ArrowUpRight className="w-4 h-4" /> +28.4% this month
+            <ArrowUpRight className="w-4 h-4" /> +28.4% в этом месяце
           </div>
         </div>
         <ResponsiveContainer width="100%" height={220}>
@@ -333,7 +333,7 @@ function DashboardTab({ products }: { products: Product[] }) {
             <Tooltip
               contentStyle={{ backgroundColor: "#1c2333", border: "1px solid #ffffff15", borderRadius: 12 }}
               labelStyle={{ color: "#ffffff80" }}
-              formatter={(v: number) => [`${fmt(v)} UZS`, "Revenue"]}
+              formatter={(v: number) => [`${fmt(v)} UZS`, "Выручка"]}
             />
             <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fill="url(#revGrad)" />
           </AreaChart>
@@ -344,8 +344,8 @@ function DashboardTab({ products }: { products: Product[] }) {
       <div className="grid md:grid-cols-2 gap-5">
         {/* orders */}
         <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
-          <h3 className="text-white font-semibold mb-1">Orders per Month</h3>
-          <p className="text-white/40 text-sm mb-6">Number of completed orders</p>
+          <h3 className="text-white font-semibold mb-1">Заказов в месяц</h3>
+          <p className="text-white/40 text-sm mb-6">Количество выполненных заказов</p>
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={REVENUE_DATA}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
@@ -362,8 +362,8 @@ function DashboardTab({ products }: { products: Product[] }) {
 
         {/* categories */}
         <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
-          <h3 className="text-white font-semibold mb-1">Sales by Category</h3>
-          <p className="text-white/40 text-sm mb-6">Distribution of sales</p>
+          <h3 className="text-white font-semibold mb-1">Продажи по категориям</h3>
+          <p className="text-white/40 text-sm mb-6">Распределение продаж</p>
           <div className="space-y-3">
             {CATEGORY_DATA.map(c => (
               <div key={c.name}>
@@ -383,7 +383,7 @@ function DashboardTab({ products }: { products: Product[] }) {
 
       {/* top products */}
       <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-6">Top Products</h3>
+        <h3 className="text-white font-semibold mb-6">Топ товары</h3>
         <div className="space-y-4">
           {products.slice(0, 5).map((p, i) => (
             <div key={p.id} className="flex items-center gap-4">
@@ -413,16 +413,16 @@ function GalleryModal({ current, onSelect, onClose }: {
   onSelect: (url: string) => void;
   onClose: () => void;
 }) {
-  type FilterType = "All" | "Uploaded" | "Products" | "Categories" | "Other";
-  const [filter, setFilter] = useState<FilterType>("All");
+  type FilterType = "Все" | "Uploaded" | "Products" | "Categories" | "Other";
+  const [filter, setFilter] = useState<FilterType>("Все");
   const [customImgs, setCustomImgs] = useState<GalleryImage[]>(loadCustomImages);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const allImages = [...customImgs, ...GALLERY_IMAGES];
-  const groups: FilterType[] = ["All", "Uploaded", "Products", "Categories", "Other"];
-  const filtered = allImages.filter(img => filter === "All" || img.group === filter);
+  const groups: FilterType[] = ["Все", "Uploaded", "Products", "Categories", "Other"];
+  const filtered = allImages.filter(img => filter === "Все" || img.group === filter);
 
   /* ── File → base64 ── */
   const processFile = (file: File) => {
@@ -481,8 +481,8 @@ function GalleryModal({ current, onSelect, onClose }: {
         {/* header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/6 flex-shrink-0">
           <div>
-            <h2 className="text-white font-semibold text-lg">🖼 Image Gallery</h2>
-            <p className="text-white/40 text-sm mt-0.5">Click an image to select it</p>
+            <h2 className="text-white font-semibold text-lg">🖼 Галерея изображений</h2>
+            <p className="text-white/40 text-sm mt-0.5">Нажмите на изображение, чтобы выбрать</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 grid place-items-center text-white/50 hover:text-white transition">
             <X className="w-4 h-4" />
@@ -508,7 +508,7 @@ function GalleryModal({ current, onSelect, onClose }: {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
-                <span className="text-white/50 text-sm">Uploading...</span>
+                <span className="text-white/50 text-sm">Загрузка...</span>
               </>
             ) : (
               <>
@@ -516,8 +516,8 @@ function GalleryModal({ current, onSelect, onClose }: {
                   <Upload className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div className="text-center">
-                  <div className="text-white text-sm font-medium">Upload from device</div>
-                  <div className="text-white/40 text-xs mt-0.5">Click or drag & drop · JPG, PNG, WEBP · max 5 MB</div>
+                  <div className="text-white text-sm font-medium">Загрузить с устройства</div>
+                  <div className="text-white/40 text-xs mt-0.5">Нажмите или перетащите · JPG, PNG, WEBP · макс. 5 МБ</div>
                 </div>
               </>
             )}
@@ -534,7 +534,7 @@ function GalleryModal({ current, onSelect, onClose }: {
         {/* filters */}
         <div className="px-6 py-3 border-b border-white/6 flex gap-2 flex-wrap flex-shrink-0">
           {groups.map(g => {
-            const count = g === "All" ? allImages.length
+            const count = g === "Все" ? allImages.length
               : g === "Uploaded" ? customImgs.length
               : GALLERY_IMAGES.filter(i => i.group === g).length;
             return (
@@ -558,8 +558,8 @@ function GalleryModal({ current, onSelect, onClose }: {
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-white/30">
               <ImageIcon className="w-10 h-10 mb-3 opacity-30" />
-              <div className="text-sm">No images yet</div>
-              <div className="text-xs mt-1">Upload one from your device above</div>
+              <div className="text-sm">Изображений пока нет</div>
+              <div className="text-xs mt-1">Загрузите с устройства выше</div>
             </div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
@@ -620,9 +620,9 @@ function GalleryModal({ current, onSelect, onClose }: {
 
         {/* footer */}
         <div className="px-6 py-4 border-t border-white/6 flex items-center justify-between flex-shrink-0">
-          <span className="text-white/30 text-sm">{filtered.length} images</span>
+          <span className="text-white/30 text-sm">{filtered.length} изображений</span>
           <button onClick={onClose} className="px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm transition">
-            Close
+            Закрыть
           </button>
         </div>
       </div>
@@ -639,7 +639,7 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
 
   return (
     <div className="space-y-3">
-      <div className="text-white/60 text-sm font-medium mb-1">Product Image</div>
+      <div className="text-white/60 text-sm font-medium mb-1">Изображение товара</div>
 
       {/* preview row */}
       <div className="flex gap-4 items-center">
@@ -663,7 +663,7 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
             className="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/25 text-sm font-medium transition"
           >
             <ImageIcon className="w-4 h-4" />
-            Choose from Gallery
+            Выбрать из галереи
           </button>
 
           {/* URL input */}
@@ -674,7 +674,7 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
               onChange(e.target.value);
             }}
             className="w-full h-9 px-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder:text-white/25 focus:outline-none focus:border-emerald-500/50 transition"
-            placeholder="Or paste image URL…"
+            placeholder="Или вставьте URL изображения…"
           />
         </div>
       </div>
@@ -725,43 +725,43 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
 
           {/* name */}
           <div>
-            <label className="text-white/60 text-sm mb-2 block">Product Name</label>
+            <label className="text-white/60 text-sm mb-2 block">Название товара</label>
             <input value={form.name} onChange={e => set("name", e.target.value)}
               className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition"
-              placeholder="e.g. Premium Omega 3 Fish Oil" />
+              placeholder="напр. Омега 3 рыбий жир" />
           </div>
 
           {/* category */}
           <div>
-            <label className="text-white/60 text-sm mb-2 block">Category</label>
+            <label className="text-white/60 text-sm mb-2 block">Категория</label>
             <input value={form.category} onChange={e => set("category", e.target.value)}
               className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition"
-              placeholder="e.g. Supplements, Beauty, Vitamins" />
+              placeholder="напр. Добавки, Красота, Витамины" />
           </div>
 
           {/* prices — 3 fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-white/60 text-sm mb-2 block">Selling Price — Narx (UZS)</label>
+              <label className="text-white/60 text-sm mb-2 block">Цена продажи (UZS)</label>
               <input type="number" value={form.price || ""} onChange={e => set("price", Number(e.target.value))}
                 className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/60 transition"
-                placeholder="e.g. 285000" />
+                placeholder="напр. 285000" />
             </div>
             <div>
-              <label className="text-white/60 text-sm mb-2 block">Old Price — Chegirma (UZS)</label>
+              <label className="text-white/60 text-sm mb-2 block">Старая цена / Скидка (UZS)</label>
               <input type="number" value={form.oldPrice ?? ""} onChange={e => set("oldPrice", e.target.value ? Number(e.target.value) : undefined)}
                 className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/60 transition"
-                placeholder="Leave blank if no discount" />
+                placeholder="Оставьте пустым, если нет скидки" />
             </div>
           </div>
 
           {/* cost price + profit calculator */}
           <div className="space-y-3">
             <div>
-              <label className="text-white/60 text-sm mb-2 block">Sebestoymost — Cost Price (UZS)</label>
+              <label className="text-white/60 text-sm mb-2 block">Себестоимость (UZS)</label>
               <input type="number" value={form.costPrice ?? ""} onChange={e => set("costPrice", e.target.value ? Number(e.target.value) : undefined)}
                 className="w-full h-11 px-4 bg-white/5 border border-orange-500/30 rounded-xl text-white focus:outline-none focus:border-orange-500/60 transition"
-                placeholder="Mahsulot tannarxi…" />
+                placeholder="Закупочная цена товара…" />
             </div>
 
             {/* live profit calculator */}
@@ -775,18 +775,18 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
                 <div className={`rounded-2xl border p-4 ${
                   isPositive ? "bg-emerald-500/8 border-emerald-500/20" : "bg-red-500/8 border-red-500/20"
                 }`}>
-                  <div className="text-white/50 text-xs mb-3 uppercase tracking-wider font-medium">📊 Foyda hisobi</div>
+                  <div className="text-white/50 text-xs mb-3 uppercase tracking-wider font-medium">📊 Расчёт прибыли</div>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="text-center">
-                      <div className="text-white/40 text-[11px] mb-1">Narx</div>
+                      <div className="text-white/40 text-[11px] mb-1">Цена</div>
                       <div className="text-white text-sm font-bold">{fmt(form.price)}</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-white/40 text-[11px] mb-1">Tannarx</div>
+                      <div className="text-white/40 text-[11px] mb-1">Себестоимость</div>
                       <div className="text-orange-400 text-sm font-bold">{fmt(cp)}</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-white/40 text-[11px] mb-1">Foyda</div>
+                      <div className="text-white/40 text-[11px] mb-1">Прибыль</div>
                       <div className={`text-sm font-bold ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
                         {isPositive ? "+" : ""}{fmt(profit)}
                       </div>
@@ -795,7 +795,7 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
                   {/* margin bar */}
                   <div className="mt-3">
                     <div className="flex justify-between text-[11px] mb-1">
-                      <span className="text-white/40">Foyda marjasi</span>
+                      <span className="text-white/40">Маржа прибыли</span>
                       <span className={isPositive ? "text-emerald-400" : "text-red-400"}>{margin.toFixed(1)}%</span>
                     </div>
                     <div className="h-2 rounded-full bg-white/8 overflow-hidden">
@@ -813,7 +813,7 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
 
           {/* badge */}
           <div>
-            <label className="text-white/60 text-sm mb-2 block">Badge</label>
+            <label className="text-white/60 text-sm mb-2 block">Статус / Метка</label>
             <div className="flex gap-2 flex-wrap">
               {(["", "sale", "new", "bestseller"] as const).map(b => (
                 <button key={b} onClick={() => set("badge", b)}
@@ -822,7 +822,7 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
                       ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-400"
                       : "bg-white/5 border-white/10 text-white/50 hover:border-white/20"
                   }`}>
-                  {b === "" ? "None" : b.charAt(0).toUpperCase() + b.slice(1)}
+                  {b === "" ? "Нет" : b === "sale" ? "Скидка" : b === "new" ? "Новинка" : "Хит продаж"}
                 </button>
               ))}
             </div>
@@ -831,10 +831,10 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
           {/* actions */}
           <div className="flex gap-3 pt-2">
             <button onClick={onClose} className="flex-1 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm font-medium transition">
-              Cancel
+              Отмена
             </button>
             <button onClick={onSave} className="flex-1 h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold transition flex items-center justify-center gap-2">
-              <Save className="w-4 h-4" /> {saveLabel ?? "Save changes"}
+              <Save className="w-4 h-4" /> {saveLabel ?? "Сохранить изменения"}
             </button>
           </div>
         </div>
@@ -854,7 +854,7 @@ function EditModal({ product, onSave, onClose }: {
     <ProductForm
       form={form} setForm={setForm}
       onSave={() => onSave(form)} onClose={onClose}
-      title="Edit Product" subtitle={product.name}
+      title="Редактировать товар" subtitle={product.name}
     />
   );
 }
@@ -891,7 +891,7 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
   const handleSave = (updated: Product) => {
     onUpdate(products.map(p => p.id === updated.id ? updated : p));
     setEditing(null);
-    showToast("✅ Product updated!");
+    showToast("✅ Товар обновлён!");
   };
 
   const handleAdd = () => {
@@ -899,13 +899,13 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
     onUpdate([...products, { ...newForm, id: Date.now().toString() }]);
     setAdding(false);
     setNewForm(EMPTY_PRODUCT());
-    showToast("✅ Product added!");
+    showToast("✅ Товар добавлен!");
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm("Delete this product?")) return;
+    if (!confirm("Удалить этот товар?")) return;
     onUpdate(products.filter(p => p.id !== id));
-    showToast("🗑 Product deleted");
+    showToast("🗑 Товар удалён");
   };
 
   const BADGE_STYLES: Record<string, string> = {
@@ -926,15 +926,15 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
       {/* header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-white font-semibold text-lg">Products</h2>
-          <p className="text-white/40 text-sm">{products.length} total products</p>
+          <h2 className="text-white font-semibold text-lg">Товары</h2>
+          <p className="text-white/40 text-sm">{products.length} товаров всего</p>
         </div>
         <button onClick={() => { setNewForm(EMPTY_PRODUCT()); setAdding(true); }}
           className="flex items-center gap-2 h-10 px-5 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold rounded-xl transition shadow-lg shadow-emerald-500/20">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          Add Product
+          Добавить товар
         </button>
       </div>
 
@@ -942,7 +942,7 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
       <div className="relative mb-6">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
         <input value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search products..."
+          placeholder="Поиск товаров..."
           className="w-full h-11 pl-11 pr-4 bg-[#161b22] border border-white/6 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/40 transition" />
       </div>
 
@@ -951,12 +951,12 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/6">
-              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Product</th>
-              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Category</th>
-              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Price</th>
-              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Badge</th>
-              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Rating</th>
-              <th className="text-right text-white/30 text-xs font-medium px-6 py-4">Actions</th>
+              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Товар</th>
+              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Категория</th>
+              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Цена</th>
+              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Метка</th>
+              <th className="text-left text-white/30 text-xs font-medium px-6 py-4">Рейтинг</th>
+              <th className="text-right text-white/30 text-xs font-medium px-6 py-4">Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -970,7 +970,7 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
                     </div>
                     <div>
                       <div className="text-white text-sm font-medium">{p.name}</div>
-                      <div className="text-white/30 text-xs">{p.reviews} reviews</div>
+                      <div className="text-white/30 text-xs">{p.reviews} отзывов</div>
                     </div>
                   </div>
                 </td>
@@ -994,7 +994,7 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
                   <div className="flex items-center justify-end gap-2">
                     <button onClick={() => setEditing(p)}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/15 hover:text-emerald-400 text-white/50 text-xs font-medium transition border border-white/8 hover:border-emerald-500/30">
-                      <Edit2 className="w-3 h-3" /> Edit
+                      <Edit2 className="w-3 h-3" /> Изменить
                     </button>
                     <button onClick={() => handleDelete(p.id)}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/30 text-xs font-medium transition border border-white/8 hover:border-red-500/30">
@@ -1008,7 +1008,7 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
         </table>
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-white/30 text-sm">No products found</div>
+          <div className="text-center py-16 text-white/30 text-sm">Товары не найдены</div>
         )}
       </div>
 
@@ -1020,9 +1020,9 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
         <ProductForm
           form={newForm} setForm={setNewForm}
           onSave={handleAdd} onClose={() => setAdding(false)}
-          title="Add New Product"
-          subtitle="Fill in details and choose an image from the gallery"
-          saveLabel="Add Product"
+          title="Добавить новый товар"
+          subtitle="Заполните информацию и выберите изображение из галереи"
+          saveLabel="Добавить товар"
         />
       )}
     </div>
@@ -1047,16 +1047,16 @@ function AnalyticsTab() {
     <div className="p-8 space-y-8">
       {/* stats */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
-        <StatCard icon={Users} label="Total Visitors" value="4,821" sub="+8.1%" up color="bg-blue-500/20" />
-        <StatCard icon={TrendingUp} label="Conversion Rate" value="3.8%" sub="+0.4%" up color="bg-emerald-500/20" />
-        <StatCard icon={ShoppingCart} label="Avg. Order Value" value="143,400 UZS" sub="-2.1%" up={false} color="bg-orange-500/20" />
-        <StatCard icon={Star} label="Satisfaction" value="4.85/5" sub="+0.05" up color="bg-yellow-500/20" />
+        <StatCard icon={Users} label="Всего посетителей" value="4,821" sub="+8.1%" up color="bg-blue-500/20" />
+        <StatCard icon={TrendingUp} label="Конверсия" value="3.8%" sub="+0.4%" up color="bg-emerald-500/20" />
+        <StatCard icon={ShoppingCart} label="Средний чек" value="143,400 UZS" sub="-2.1%" up={false} color="bg-orange-500/20" />
+        <StatCard icon={Star} label="Удовлетворённость" value="4.85/5" sub="+0.05" up color="bg-yellow-500/20" />
       </div>
 
       {/* visitors chart */}
       <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-1">Visitors This Week</h3>
-        <p className="text-white/40 text-sm mb-6">Desktop vs Mobile</p>
+        <h3 className="text-white font-semibold mb-1">Посетители за неделю</h3>
+        <p className="text-white/40 text-sm mb-6">Десктоп против мобильных</p>
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={visitors}>
             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
@@ -1072,10 +1072,10 @@ function AnalyticsTab() {
         </ResponsiveContainer>
         <div className="flex items-center gap-6 mt-4 justify-center">
           <div className="flex items-center gap-2 text-sm text-white/50">
-            <div className="w-3 h-0.5 bg-emerald-500 rounded" /> Desktop
+            <div className="w-3 h-0.5 bg-emerald-500 rounded" /> Десктоп
           </div>
           <div className="flex items-center gap-2 text-sm text-white/50">
-            <div className="w-3 h-0.5 bg-indigo-500 rounded" /> Mobile
+            <div className="w-3 h-0.5 bg-indigo-500 rounded" /> Мобильные
           </div>
         </div>
       </div>
@@ -1083,9 +1083,9 @@ function AnalyticsTab() {
       {/* summary */}
       <div className="grid md:grid-cols-3 gap-5">
         {[
-          { label: "Bounce Rate", value: "34.2%", trend: "↓ 2.1% better", good: true },
-          { label: "Avg. Session Duration", value: "3m 42s", trend: "↑ 18s longer", good: true },
-          { label: "Pages per Session", value: "4.7", trend: "↑ 0.3 more", good: true },
+          { label: "Процент отказов", value: "34.2%", trend: "↓ на 2.1% лучше", good: true },
+          { label: "Ср. длит. сессии", value: "3м 42с", trend: "↑ на 18с дольше", good: true },
+          { label: "Страниц за сессию", value: "4.7", trend: "↑ на 0.3 больше", good: true },
         ].map(item => (
           <div key={item.label} className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
             <div className="text-white/40 text-sm mb-3">{item.label}</div>
@@ -1144,10 +1144,10 @@ function FinanceTab({ products }: { products: Product[] }) {
     <div className="p-8 space-y-8">
       {/* summary cards */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
-        <StatCard icon={DollarSign} label="Jami Daromad" value={`${fmt(totalRevenue)} UZS`} sub="+18.2%" up color="bg-blue-500/20" />
-        <StatCard icon={ShoppingCart} label="Jami Tannarx" value={`${fmt(totalCost)} UZS`} sub="Sebestoymost" up={false} color="bg-orange-500/20" />
-        <StatCard icon={TrendingUp} label="Sof Foyda" value={`${fmt(totalProfit)} UZS`} sub="+12.4%" up color="bg-emerald-500/20" />
-        <StatCard icon={BarChart2} label="O'rtacha Marja" value={`${avgMargin.toFixed(1)}%`} sub="Avg margin" up color="bg-purple-500/20" />
+        <StatCard icon={DollarSign} label="Общая выручка" value={`${fmt(totalRevenue)} UZS`} sub="+18.2%" up color="bg-blue-500/20" />
+        <StatCard icon={ShoppingCart} label="Общая себестоимость" value={`${fmt(totalCost)} UZS`} sub="Закупочная цена" up={false} color="bg-orange-500/20" />
+        <StatCard icon={TrendingUp} label="Чистая прибыль" value={`${fmt(totalProfit)} UZS`} sub="+12.4%" up color="bg-emerald-500/20" />
+        <StatCard icon={BarChart2} label="Средняя маржа" value={`${avgMargin.toFixed(1)}%`} sub="Маржинальность" up color="bg-purple-500/20" />
       </div>
 
       {/* daromad vs tannarx vs foyda — stacked bar */}
@@ -1155,12 +1155,12 @@ function FinanceTab({ products }: { products: Product[] }) {
         <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h3 className="text-white font-semibold">Narx / Tannarx / Foyda</h3>
-              <p className="text-white/40 text-sm mt-0.5">Har bir mahsulot bo'yicha buxgalteriya tahlili</p>
+              <h3 className="text-white font-semibold">Цена / Себестоимость / Прибыль</h3>
+              <p className="text-white/40 text-sm mt-0.5">Бухгалтерский анализ по каждому товару</p>
             </div>
             <div className="flex items-center gap-4 text-xs">
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-orange-400 inline-block" /> Tannarx</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" /> Foyda</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-orange-400 inline-block" /> Себестоимость</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" /> Прибыль</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={260}>
@@ -1174,25 +1174,25 @@ function FinanceTab({ products }: { products: Product[] }) {
                 labelStyle={{ color: "#fff", fontWeight: 600 }}
                 formatter={(v: number, name: string) => [
                   `${fmt(v)} UZS`,
-                  name === "cost" ? "Tannarx" : name === "profit" ? "Foyda" : name
+                  name === "cost" ? "Себестоимость" : name === "profit" ? "Прибыль" : name
                 ]}
               />
               <Bar dataKey="cost" stackId="a" fill="#f97316" radius={[0,0,6,6]} name="cost" />
               <Bar dataKey="profit" stackId="a" fill="#10b981" radius={[6,6,0,0]} name="profit" />
               <Line type="monotone" dataKey="price" stroke="#6366f1" strokeWidth={2}
-                dot={{ fill: "#6366f1", r: 4 }} name="Narx" />
+                dot={{ fill: "#6366f1", r: 4 }} name="Цена" />
             </ComposedChart>
           </ResponsiveContainer>
           <div className="flex items-center gap-6 mt-3 justify-center">
-            <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-4 h-0.5 bg-indigo-500 inline-block" /> Sotuv narxi</span>
+            <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-4 h-0.5 bg-indigo-500 inline-block" /> Цена продажи</span>
           </div>
         </div>
       )}
 
       {/* monthly profit trend */}
       <div className="bg-[#161b22] border border-white/6 rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-1">Oylik Foyda Trendi</h3>
-        <p className="text-white/40 text-sm mb-6">Daromad, Tannarx va Sof Foyda dinamikasi</p>
+        <h3 className="text-white font-semibold mb-1">Ежемесячный тренд прибыли</h3>
+        <p className="text-white/40 text-sm mb-6">Динамика выручки, себестоимости и чистой прибыли</p>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={trendData}>
             <defs>
@@ -1214,13 +1214,13 @@ function FinanceTab({ products }: { products: Product[] }) {
               labelStyle={{ color: "#ffffff80" }}
               formatter={(v: number) => [`${fmt(v)} UZS`]}
             />
-            <Area type="monotone" dataKey="daromad" stroke="#6366f1" strokeWidth={2} fill="url(#gradDar)" name="Daromad" />
-            <Area type="monotone" dataKey="foyda" stroke="#10b981" strokeWidth={2} fill="url(#gradFoy)" name="Sof Foyda" />
+            <Area type="monotone" dataKey="daromad" stroke="#6366f1" strokeWidth={2} fill="url(#gradDar)" name="Выручка" />
+            <Area type="monotone" dataKey="foyda" stroke="#10b981" strokeWidth={2} fill="url(#gradFoy)" name="Чистая прибыль" />
           </AreaChart>
         </ResponsiveContainer>
         <div className="flex items-center gap-6 mt-3 justify-center">
-          <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-3 h-0.5 bg-indigo-500 inline-block" /> Daromad</span>
-          <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-3 h-0.5 bg-emerald-500 inline-block" /> Sof Foyda</span>
+          <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-3 h-0.5 bg-indigo-500 inline-block" /> Выручка</span>
+          <span className="flex items-center gap-1.5 text-xs text-white/40"><span className="w-3 h-0.5 bg-emerald-500 inline-block" /> Чистая прибыль</span>
         </div>
       </div>
 
@@ -1228,17 +1228,17 @@ function FinanceTab({ products }: { products: Product[] }) {
       {withCost.length > 0 ? (
         <div className="bg-[#161b22] border border-white/6 rounded-2xl overflow-hidden">
           <div className="px-6 py-5 border-b border-white/6">
-            <h3 className="text-white font-semibold">Mahsulotlar bo'yicha Foyda Tahlili</h3>
-            <p className="text-white/40 text-sm mt-0.5">Har bir mahsulotning rentabelligi</p>
+            <h3 className="text-white font-semibold">Анализ прибыльности товаров</h3>
+            <p className="text-white/40 text-sm mt-0.5">Рентабельность каждого товара</p>
           </div>
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/6">
-                <th className="text-left text-white/30 text-xs font-medium px-6 py-3">Mahsulot</th>
-                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Narx</th>
-                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Tannarx</th>
-                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Foyda</th>
-                <th className="text-right text-white/30 text-xs font-medium px-6 py-3">Marja</th>
+                <th className="text-left text-white/30 text-xs font-medium px-6 py-3">Товар</th>
+                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Цена</th>
+                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Себестоимость</th>
+                <th className="text-right text-white/30 text-xs font-medium px-4 py-3">Прибыль</th>
+                <th className="text-right text-white/30 text-xs font-medium px-6 py-3">Маржа</th>
               </tr>
             </thead>
             <tbody>
@@ -1285,7 +1285,7 @@ function FinanceTab({ products }: { products: Product[] }) {
             </tbody>
             <tfoot>
               <tr className="border-t border-white/10 bg-white/[0.02]">
-                <td className="px-6 py-4 text-white/50 text-sm font-medium">Jami</td>
+                <td className="px-6 py-4 text-white/50 text-sm font-medium">Итого</td>
                 <td className="px-4 py-4 text-right text-white font-semibold text-sm">{fmt(totalRevenue)}</td>
                 <td className="px-4 py-4 text-right text-orange-400 font-semibold text-sm">{fmt(totalCost)}</td>
                 <td className="px-4 py-4 text-right text-emerald-400 font-bold text-sm">+{fmt(totalProfit)}</td>
@@ -1297,8 +1297,8 @@ function FinanceTab({ products }: { products: Product[] }) {
       ) : (
         <div className="bg-[#161b22] border border-white/6 rounded-2xl p-12 text-center">
           <Wallet className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <div className="text-white/50 text-sm">Sebestoymost kiritilmagan</div>
-          <div className="text-white/30 text-xs mt-1">Mahsulotlarni tahrirlang va tannarx qo'shing</div>
+          <div className="text-white/50 text-sm">Себестоимость не указана</div>
+          <div className="text-white/30 text-xs mt-1">Отредактируйте товары и добавьте закупочную цену</div>
         </div>
       )}
     </div>
@@ -1334,10 +1334,10 @@ function AdminPage() {
   if (!authed) return <LoginScreen onLogin={handleLogin} />;
 
   const TAB_TITLES: Record<string, string> = {
-    dashboard: "Dashboard",
-    products: "Products",
-    finance: "💰 Finance — Moliyaviy Hisobot",
-    analytics: "Analytics",
+    dashboard: "Главная",
+    products: "Товары",
+    finance: "💰 Финансы — Бухгалтерия",
+    analytics: "Аналитика",
   };
 
   return (
