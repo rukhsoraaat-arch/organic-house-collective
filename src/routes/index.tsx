@@ -50,6 +50,7 @@ function Home() {
 
   const handleCloseModal = () => {
     window.history.pushState({}, "", window.location.pathname + window.location.search);
+    window.dispatchEvent(new Event("popstate"));
     setIsVitaminModalOpen(false);
   };
 
@@ -93,11 +94,22 @@ function Hero() {
               {t.hero.sub}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <button className="group inline-flex items-center gap-2 h-14 px-7 rounded-full bg-forest text-cream font-medium hover:bg-forest-deep transition shadow-soft">
+              <button 
+                onClick={() => {
+                  const el = document.getElementById("products-section");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="group inline-flex items-center gap-2 h-14 px-7 rounded-full bg-forest text-cream font-medium hover:bg-forest-deep transition shadow-soft cursor-pointer"
+              >
                 {t.hero.ctaPrimary}
                 <ArrowRight className="size-4 group-hover:translate-x-1 transition" />
               </button>
-              <button className="inline-flex items-center gap-2 h-14 px-7 rounded-full border border-forest/20 text-forest font-medium hover:bg-secondary transition">
+              <button 
+                onClick={() => {
+                  window.location.hash = "#vitamin-universe";
+                }}
+                className="inline-flex items-center gap-2 h-14 px-7 rounded-full border border-forest/20 text-forest font-medium hover:bg-secondary transition cursor-pointer"
+              >
                 {t.hero.ctaSecondary}
               </button>
             </div>
@@ -270,7 +282,7 @@ function VitaminUniverseModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
       onClick={onClose}
     >
       <div 
-        className="bg-forest text-cream border border-cream/10 rounded-3xl w-full max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto relative shadow-2xl animate-scale-in"
+        className="bg-forest text-cream border border-cream/10 rounded-3xl w-full max-w-4xl relative shadow-2xl animate-scale-in flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Background blobs inside modal */}
@@ -279,15 +291,16 @@ function VitaminUniverseModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
           <div className="absolute -bottom-32 -left-32 size-80 rounded-full bg-sage/10 blur-3xl" />
         </div>
 
-        {/* Close Button */}
+        {/* Close Button - positioned relative to card, outside scrollable container */}
         <button 
           onClick={onClose} 
-          className="absolute right-6 top-6 size-10 rounded-full bg-cream/10 hover:bg-cream/20 grid place-items-center text-gold hover:text-cream transition cursor-pointer z-10"
+          className="absolute right-6 top-6 size-10 rounded-full bg-cream/10 hover:bg-cream/20 grid place-items-center text-gold hover:text-cream transition cursor-pointer z-20"
         >
           <X className="size-5" />
         </button>
 
-        <div className="relative z-10">
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto p-6 md:p-8 flex-1 relative z-10">
           <div className="mb-8 pr-12">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cream/10 text-gold text-xs uppercase tracking-widest mb-3">
               <Sparkles className="size-3.5" /> Curated selection
@@ -345,7 +358,29 @@ function VitaminUniverseModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
 /* ---------- BESTSELLERS ---------- */
 function normalizeCategory(cat: string): string {
   const c = cat.toLowerCase().trim();
-  if (c.includes("витамин") || c.includes("vitamin") || c.includes("бад") || c.includes("supplements") || c.includes("bad")) return "vitamins";
+  if (
+    c.includes("витамин") || c.includes("vitamin") || 
+    c.includes("бад") || c.includes("supplements") || c.includes("bad") || c.includes("добавк") ||
+    c.includes("детск") || c.includes("детей") || c.includes("bolalar") || c.includes("kids") || c.includes("baby") ||
+    c.includes("женск") || c.includes("женщин") || c.includes("women") ||
+    c.includes("мужск") || c.includes("мужчин") || c.includes("men") ||
+    c.includes("беремен") || c.includes("homilador") || c.includes("pregnancy") ||
+    c.includes("иммун") || c.includes("immunity") ||
+    c.includes("омега") || c.includes("omega") ||
+    c.includes("магн") || c.includes("magnesium") || c.includes("magniy") ||
+    c.includes("цинк") || c.includes("zinc") || c.includes("rux") ||
+    c.includes("коллаг") || c.includes("collagen") ||
+    c.includes("пробиотик") || c.includes("probiotic") ||
+    c.includes("мульти") || c.includes("multi") ||
+    c.includes("суперфуд") || c.includes("superfood") ||
+    c.includes("спорт") || c.includes("sport") ||
+    c.includes("сон") || c.includes("sleep") || c.includes("uyqu") ||
+    c.includes("мозг") || c.includes("brain") || c.includes("miya") ||
+    c.includes("стресс") || c.includes("stress") ||
+    c.includes("энерг") || c.includes("energy")
+  ) {
+    return "vitamins";
+  }
   if (c.includes("сахар") || c.includes("sugar-free") || c.includes("sugarfree") || c.includes("shakarsiz")) return "sugarFree";
   if (c.includes("глютен") || c.includes("gluten-free") || c.includes("glutenfree") || c.includes("glutensiz")) return "glutenFree";
   if (c.includes("красот") || c.includes("beauty") || c.includes("go'zallik")) return "beauty";
@@ -354,6 +389,154 @@ function normalizeCategory(cat: string): string {
   if (c.includes("напит") || c.includes("drink") || c.includes("beverage") || c.includes("ichimlik")) return "drinks";
   if (c.includes("перекус") || c.includes("snack") || c.includes("yengil taom")) return "snacks";
   return c;
+}
+
+function matchSearch(product: Product, query: string): boolean {
+  const q = query.toLowerCase().trim();
+  const name = product.name.toLowerCase();
+  const cat = product.category.toLowerCase();
+  
+  // 1. Group checks: map known search queries (from the modal) to their categories
+  
+  // Kids (Витамины для детей / Bolalar uchun vitaminlar / Vitamins for Kids)
+  if (q === "витамины для детей" || q === "bolalar uchun vitaminlar" || q === "vitamins for kids" || q.includes("детские витамины") || q.includes("детск") || q.includes("bolalar")) {
+    const kidsKeywords = ["детс", "ребен", "ребён", "малыш", "детей", "bolal", "go'dak", "kichintoy", "kid", "child", "baby", "pediatric"];
+    return kidsKeywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Women (Витамины для женщин / Ayollar uchun vitaminlar / Vitamins for Women)
+  if (q === "витамины для женщин" || q === "ayollar uchun vitaminlar" || q === "vitamins for women" || q.includes("женщин") || q.includes("ayol")) {
+    const keywords = ["женщ", "женс", "девуш", "ayol", "xotin", "women", "woman", "female", "her"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Men (Витамины для мужчин / Erkaklar uchun vitaminlar / Vitamins for Men)
+  if (q === "витамины для мужчин" || q === "erkaklar uchun vitaminlar" || q === "vitamins for men" || q.includes("мужчин") || q.includes("erkak")) {
+    const keywords = ["мужч", "мужс", "erkak", "men", "man", "male", "him"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Pregnancy (Витамины при беременности / Homiladorlikda vitaminlar / Vitamins for Pregnancy)
+  if (q === "витамины при беременности" || q === "homiladorlikda vitaminlar" || q === "vitamins for pregnancy" || q.includes("беремен") || q.includes("homilador")) {
+    const keywords = ["беремен", "берем", "родив", "кормящ", "лактац", "homilador", "emizikli", "pregnan", "maternity", "prenatal", "lactat"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Immunity (Поддержка иммунитета / Immunitetni oshirish / Immunity Support)
+  if (q === "поддержка иммунитета" || q === "immunitetni oshirish" || q === "immunity support" || q.includes("иммун")) {
+    const keywords = ["иммун", "защит", "простуд", "immunitet", "kasallik", "himoya", "immun", "cold", "defense", "shield"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Beauty (Красота и кожа / Go'zallik va teri / Beauty & Skin)
+  if (q === "красота и кожа" || q === "go'zallik va teri" || q === "beauty & skin" || q.includes("красот") || q.includes("go'zallik")) {
+    const keywords = ["красот", "кож", "ногт", "морщин", "go'zallik", "teri", "tirnoq", "beauty", "skin", "nail", "wrinkle"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Hair (Волосы и ногти / Soch va tirnoqlar / Hair & Nails)
+  if (q === "волосы и ногти" || q === "soch va tirnoqlar" || q === "hair & nails" || q.includes("волос") || q.includes("soch")) {
+    const keywords = ["волос", "лысе", "выпаден", "soch", "hair"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Weight (Снижение веса / Ozish uchun / Weight Loss)
+  if (q === "снижение веса" || q === "ozish uchun" || q === "weight loss" || q.includes("похуде") || q.includes("ozish")) {
+    const keywords = ["похуде", "жиросжиг", "вес", "диет", "ozish", "vazn", "parhez", "weight", "diet", "slimming", "fat burn"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Sports (Спорт и выносливость / Sport va kuch-quvvat / Sports & Performance)
+  if (q === "спорт и выносливость" || q === "sport va kuch-quvvat" || q === "sports & performance" || q.includes("спорт")) {
+    const keywords = ["спорт", "тренир", "мышц", "протеин", "гейнер", "bcaa", "аминокисл", "sport", "mushak", "protein", "bcaa", "workout", "muscle", "amino"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Sleep (Сон и спокойствие / Uyqu va tinchlanish / Sleep & Calm)
+  if (q === "сон и спокойствие" || q === "uyqu va tinchlanish" || q === "sleep & calm" || q.includes("сон") || q.includes("uyqu")) {
+    const keywords = ["сна", "сон", "бессон", "мелатонин", "uyqu", "melatonin", "sleep", "melatonin", "insomnia"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Brain (Мозг и концентрация / Miya va diqqat / Brain & Focus)
+  if (q === "мозг и концентрация" || q === "miya va diqqat" || q === "brain & focus" || q.includes("мозг") || q.includes("miya")) {
+    const keywords = ["мозг", "памят", "концентр", "вниман", "ноотроп", "miya", "xotira", "brain", "memory", "focus", "nootrop"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Stress (Снятие стресса / Stressni kamaytirish / Stress Relief)
+  if (q === "снятие стресса" || q === "stressni kamaytirish" || q === "stress relief" || q.includes("стресс")) {
+    const keywords = ["стресс", "нерв", "успоко", "тревог", "asab", "tinchlan", "nerv", "calm", "anxiety"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Energy (Энергия и тонус / Energiya va tonus / Energy & Vitality)
+  if (q === "энергия и тонус" || q === "energiya va tonus" || q === "energy & vitality" || q.includes("энерг") || q.includes("tetik")) {
+    const keywords = ["энерг", "боdr", "устал", "тонус", "energiya", "tetik", "charchoq", "vigor", "fatigue", "tone"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Omega (Омега 3 / Omega 3 / Omega 3)
+  if (q === "омега 3" || q === "omega 3" || q.includes("омега") || q.includes("omega")) {
+    const keywords = ["омега", "рыбий жир", "fish oil", "omega"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Magnesium (Магний / Magniy / Magnesium)
+  if (q === "магний" || q === "magniy" || q === "magnesium" || q.includes("магн")) {
+    const keywords = ["магний", "magnesium", "magniy", "mg"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Zinc (Цинк / Rux / Zinc)
+  if (q === "цинк" || q === "rux" || q === "zinc") {
+    const keywords = ["цинк", "zinc", "rux", "zn"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Collagen (Коллаген / Kollagen / Collagen)
+  if (q === "коллаген" || q === "kollagen" || q === "collagen") {
+    const keywords = ["коллаген", "collagen", "kollagen"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Vitamin D (Витамин D / Vitamin D / Vitamin D)
+  if (q === "витамин d" || q === "vitamin d" || q.includes("vitd") || q.includes("d3") || q.includes("д3")) {
+    const keywords = ["витамин d", "витамин д", "d3", "д3"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Vitamin C (Витамин C / Vitamin C / Vitamin C)
+  if (q === "витамин c" || q === "vitamin c" || q.includes("vitc") || q.includes("аскорб")) {
+    const keywords = ["витамин c", "витамин с", "аскорбин"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Probiotics (Пробиотики / Probiotiklar / Probiotics)
+  if (q === "пробиотики" || q === "probiotiklar" || q === "probiotics") {
+    const keywords = ["пробиотик", "пребиотик", "кишеч", "желуд", "жкт", "флор", "ichak", "oshqozon", "gut", "stomach", "flora"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Multivitamins (Мультивитамины / Multivitaminlar / Multivitamins)
+  if (q === "мультивитамины" || q === "multivitaminlar" || q === "multivitamins") {
+    const keywords = ["мультивитамин", "поливитамин", "комплекс витамин", "vitaminlar kompleksi", "multi vitamin", "vitamin complex"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // Superfoods (Смесь суперфудов / Superfud aralashmasi / Superfoods Mix)
+  if (q === "смесь суперфудов" || q === "superfud aralashmasi" || q === "superfoods mix" || q.includes("суперфуд") || q.includes("superfood")) {
+    const keywords = ["суперфуд", "спирулин", "хлорелл", "семена чиа", "чиа", "матча", "spirulina", "chia", "matcha"];
+    return keywords.some(kw => name.includes(kw) || cat.includes(kw));
+  }
+  
+  // 2. Default fallback matching: split query into words to match any word
+  const words = q.split(/\s+/).filter(w => w.length > 2); // only match words with length > 2
+  if (words.length > 0) {
+    return words.some(w => name.includes(w) || cat.includes(w));
+  }
+  
+  return name.includes(q) || cat.includes(q);
 }
 
 /* ---------- BESTSELLERS ---------- */
@@ -435,10 +618,7 @@ function Bestsellers() {
   const filteredProducts = products.filter((p) => {
     // 1. Search Query Filter
     if (searchQuery) {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesName = p.name.toLowerCase().includes(q);
-      const matchesCat = p.category.toLowerCase().includes(q);
-      if (!matchesName && !matchesCat) return false;
+      if (!matchSearch(p, searchQuery)) return false;
     }
 
     // 2. Category Filter
@@ -547,7 +727,23 @@ function PromoCard({ eyebrow, title, desc, img, dark = false }: {
 }) {
   const { t } = useLang();
   return (
-    <a href="#" className="relative group overflow-hidden rounded-3xl aspect-[4/3] md:aspect-[16/10]">
+    <a 
+      href="#products-section" 
+      onClick={(e) => {
+        e.preventDefault();
+        const url = new URL(window.location.origin + window.location.pathname);
+        url.searchParams.set("search", dark ? "Поддержка иммунитета" : "Без сахара");
+        url.hash = dark ? "#category-vitamins" : "#category-sugarFree";
+        window.history.pushState({}, "", url.toString());
+        window.dispatchEvent(new Event("popstate"));
+        
+        setTimeout(() => {
+          const el = document.getElementById("products-section");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }, 150);
+      }}
+      className="relative group overflow-hidden rounded-3xl aspect-[4/3] md:aspect-[16/10] cursor-pointer"
+    >
       <img src={img} alt={title} loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
       <div className={`absolute inset-0 ${dark ? "bg-gradient-to-br from-forest-deep/85 via-forest/60 to-transparent" : "bg-gradient-to-tr from-cream/95 via-cream/60 to-transparent"}`} />
       <div className={`absolute inset-0 p-8 md:p-10 flex flex-col justify-end ${dark ? "text-cream" : "text-forest"}`}>
