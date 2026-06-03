@@ -157,16 +157,19 @@ export function SiteHeader() {
       <nav className="hidden lg:block border-t border-border/60">
         <div className="container mx-auto px-6">
           <ul className="flex items-center gap-7 h-12 text-sm overflow-x-auto scrollbar-none">
-            {navItems.map((item) => (
-              <li key={item.key}>
-                <a
-                  href={`/#category-${item.key}`}
-                  className="relative text-foreground/80 hover:text-forest transition whitespace-nowrap font-medium"
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
+            {navItems.map((item) => {
+              const href = item.key === "vitamins" ? "/#vitamin-universe" : `/#category-${item.key}`;
+              return (
+                <li key={item.key}>
+                  <a
+                    href={href}
+                    className="relative text-foreground/80 hover:text-forest transition whitespace-nowrap font-medium"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>
