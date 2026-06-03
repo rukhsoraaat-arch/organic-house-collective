@@ -96,15 +96,8 @@ function fmt(n: number) {
 }
 
 /* ─── STORAGE ─── */
-function loadProducts(): Product[] {
-  try {
-    const raw = localStorage.getItem("ohc_products");
-    return raw ? JSON.parse(raw) : DEFAULT_PRODUCTS;
-  } catch { return DEFAULT_PRODUCTS; }
-}
-function saveProducts(p: Product[]) {
-  localStorage.setItem("ohc_products", JSON.stringify(p));
-}
+// Storage functions loadProducts and saveProducts are removed since we are using /api/products server API.
+
 
 /* ══════════════════════════════════════════════════════
    LOGIN
@@ -891,13 +884,36 @@ function ProductsTab({ products, onUpdate }: { products: Product[]; onUpdate: (p
   );
 
   const handleSave = (updated: Product) => {
+    if (!updated.name.trim()) {
+      toast.error("Название товара не может быть пустым!");
+      return;
+    }
+    if (!updated.category.trim()) {
+      toast.error("Укажите категорию товара!");
+      return;
+    }
+    if (updated.price <= 0) {
+      toast.error("Цена должна быть больше нуля!");
+      return;
+    }
     onUpdate(products.map(p => p.id === updated.id ? updated : p));
     setEditing(null);
     showToast("✅ Товар обновлён!");
   };
 
   const handleAdd = () => {
-    if (!newForm.name.trim() || !newForm.price) return;
+    if (!newForm.name.trim()) {
+      toast.error("Введите название товара!");
+      return;
+    }
+    if (!newForm.category.trim()) {
+      toast.error("Укажите категорию товара!");
+      return;
+    }
+    if (newForm.price <= 0) {
+      toast.error("Цена должна быть больше нуля!");
+      return;
+    }
     onUpdate([...products, { ...newForm, id: Date.now().toString() }]);
     setAdding(false);
     setNewForm(EMPTY_PRODUCT());
@@ -1508,10 +1524,24 @@ function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [tab, setTab] = useState("dashboard");
   const [products, setProducts] = useState<Product[]>(DEFAULT_PRODUCTS);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
     setAuthed(localStorage.getItem("ohc_admin") === "1");
-    setProducts(loadProducts());
+    
+    // Fetch products from server API
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+        }
+        setLoadingProducts(false);
+      })
+      .catch(err => {
+        console.error("Failed to load products from API", err);
+        setLoadingProducts(false);
+      });
   }, []);
 
   const handleLogin = () => setAuthed(true);
@@ -1521,9 +1551,23 @@ function AdminPage() {
     setAuthed(false);
   };
 
-  const handleProductUpdate = (updated: Product[]) => {
+  const handleProductUpdate = async (updated: Product[]) => {
     setProducts(updated);
-    saveProducts(updated);
+    try {
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      });
+      if (response.ok) {
+        toast.success("Изменения успешно сохранены на сервере!");
+      } else {
+        toast.error("Не удалось сохранить изменения на сервере");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Ошибка при сохранении на сервере");
+    }
   };
 
   if (!authed) return <LoginScreen onLogin={handleLogin} />;
