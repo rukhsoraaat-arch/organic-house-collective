@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useLang } from "@/lib/lang-context";
 import { useCart } from "@/lib/cart-context";
 import type { Lang } from "@/lib/i18n";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logoMark from "@/assets/logo-mark.jpg";
 
 const langs: { code: Lang; label: string }[] = [
@@ -16,6 +17,7 @@ export function SiteHeader() {
   const { totalItems, setIsCartOpen } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -76,9 +78,44 @@ export function SiteHeader() {
 
       {/* Main bar */}
       <div className="container mx-auto px-4 md:px-6 py-4 flex items-center gap-4 md:gap-8">
-        <button className="md:hidden p-2 -ml-2 text-foreground" aria-label="Menu">
-          <Menu className="size-5" />
-        </button>
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <button className="md:hidden p-2 -ml-2 text-foreground cursor-pointer" aria-label="Menu">
+              <Menu className="size-5" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[280px] bg-background border-r border-border p-6 flex flex-col justify-between z-50">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 py-2 border-b border-border/50">
+                <img src={logoMark} alt="Organic House" className="size-8 rounded-full object-cover" />
+                <span className="font-display text-base text-forest tracking-wide">Organic House</span>
+              </div>
+              <nav className="space-y-1 text-left">
+                <div className="text-xs uppercase text-muted-foreground tracking-wider font-semibold mb-3 px-2">Категории</div>
+                {navItems.map((item) => {
+                  const href = item.key === "vitamins" ? "/#vitamin-universe" : `/#category-${item.key}`;
+                  return (
+                    <a
+                      key={item.key}
+                      href={href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block px-3 py-2 text-sm font-medium text-foreground/80 hover:text-forest hover:bg-secondary rounded-xl transition"
+                    >
+                      {item.label}
+                    </a>
+                  );
+                })}
+              </nav>
+            </div>
+            <div className="space-y-4 border-t border-border/50 pt-4">
+              <div className="flex flex-col gap-2.5 text-xs text-muted-foreground text-left">
+                <a href="#stores" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-forest transition-colors py-1">{t.header.storeLocator}</a>
+                <a href="#delivery" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-forest transition-colors py-1">{t.header.delivery}</a>
+                <a href="#help" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-forest transition-colors py-1">{t.header.help}</a>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
 
         {/* Logo */}
         <a href="/" className="flex items-center gap-3 shrink-0">
@@ -198,11 +235,27 @@ function IconBtn({
 
 export function AssistantButton() {
   const { t } = useLang();
+  
+  const getTgBotUrl = () => {
+    let settings: any = {};
+    try {
+      const raw = localStorage.getItem("ohc_settings");
+      if (raw) settings = JSON.parse(raw);
+    } catch {}
+    const username = settings.tgBotUsername || "OrganicHouseOrderBot";
+    return `https://t.me/${username}`;
+  };
+
   return (
-    <button className="fixed bottom-6 right-6 z-40 group flex items-center gap-2 pl-4 pr-5 h-14 rounded-full bg-forest text-cream shadow-lift hover:bg-forest-deep transition">
+    <a 
+      href={getTgBotUrl()}
+      target="_blank"
+      rel="noreferrer"
+      className="fixed bottom-6 right-6 z-40 group flex items-center gap-2 pl-4 pr-5 h-14 rounded-full bg-forest text-cream shadow-lift hover:bg-forest-deep transition cursor-pointer"
+    >
       <MessageCircle className="size-5 text-gold" />
       <span className="text-sm font-medium hidden sm:inline">{t.assistant}</span>
       <span className="absolute -top-1 -right-1 size-3 rounded-full bg-gold animate-pulse" />
-    </button>
+    </a>
   );
 }
