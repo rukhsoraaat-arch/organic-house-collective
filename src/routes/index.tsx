@@ -58,7 +58,7 @@ function Home() {
 function Hero() {
   const { t } = useLang();
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden" id="about">
       <div className="container mx-auto px-6 pt-10 md:pt-16 pb-16 md:pb-24">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-6 relative z-10">
@@ -136,7 +136,7 @@ function ValueStrip() {
     { Icon: Sparkles, t: t.valueStrip.loyaltyTitle, s: t.valueStrip.loyaltySub },
   ];
   return (
-    <section className="border-y border-border bg-secondary/40">
+    <section className="border-y border-border bg-secondary/40" id="delivery">
       <div className="container mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
         {items.map(({ Icon, t: title, s }) => (
           <div key={title} className="flex items-center gap-3">
@@ -158,22 +158,22 @@ function ValueStrip() {
 function Categories() {
   const { t } = useLang();
   const cats = [
-    { name: t.nav.vitamins, img: catVit, count: "180+ items", size: "lg" },
-    { name: t.nav.desserts, img: catOrg, count: "90+ items" },
-    { name: t.nav.sugarFree, img: catSf, count: "90+ items" },
-    { name: t.nav.glutenFree, img: catGf, count: "65+ items" },
-    { name: t.nav.bread, img: catSp, count: "110+ items" },
-    { name: t.nav.drinks, img: catDr, count: "70+ items" },
+    { key: "vitamins", name: t.nav.vitamins, img: catVit, count: "180+ items" },
+    { key: "desserts", name: t.nav.desserts, img: catOrg, count: "90+ items" },
+    { key: "sugarFree", name: t.nav.sugarFree, img: catSf, count: "90+ items" },
+    { key: "glutenFree", name: t.nav.glutenFree, img: catGf, count: "65+ items" },
+    { key: "bread", name: t.nav.bread, img: catSp, count: "110+ items" },
+    { key: "drinks", name: t.nav.drinks, img: catDr, count: "70+ items" },
   ];
   return (
-    <section className="container mx-auto px-6 py-20 md:py-28">
+    <section className="container mx-auto px-6 py-20 md:py-28" id="categories-section">
       <SectionHeader title={t.sections.categories} sub={t.sections.categoriesSub} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
         {/* Large feature card */}
         <CategoryCard cat={cats[0]} className="col-span-2 lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto" large />
         {cats.slice(1).map((c) => (
-          <CategoryCard key={c.name} cat={c} className="aspect-square" />
+          <CategoryCard key={c.key} cat={c} className="aspect-square" />
         ))}
       </div>
     </section>
@@ -182,10 +182,10 @@ function Categories() {
 
 function CategoryCard({
   cat, className = "", large = false,
-}: { cat: { name: string; img: string; count: string }; className?: string; large?: boolean }) {
+}: { cat: { key: string; name: string; img: string; count: string }; className?: string; large?: boolean }) {
   const { t } = useLang();
   return (
-    <a href="#" className={`group relative overflow-hidden rounded-3xl ${className}`}>
+    <a href={`#category-${cat.key}`} className={`group relative overflow-hidden rounded-3xl ${className}`}>
       <img src={cat.img} alt={cat.name} loading="lazy" width={800} height={1000} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
       <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/90 via-forest/30 to-transparent" />
       <div className="absolute inset-0 p-5 md:p-6 flex flex-col justify-end text-cream">
@@ -230,7 +230,7 @@ function VitaminUniverse() {
   ];
 
   return (
-    <section className="bg-forest text-cream py-20 md:py-28 relative overflow-hidden">
+    <section className="bg-forest text-cream py-20 md:py-28 relative overflow-hidden" id="vitamin-universe-section">
       <div className="absolute -top-32 -right-32 size-96 rounded-full bg-gold/10 blur-3xl" />
       <div className="absolute -bottom-32 -left-32 size-96 rounded-full bg-sage/10 blur-3xl" />
 
@@ -245,14 +245,29 @@ function VitaminUniverse() {
             </h2>
             <p className="mt-4 text-cream/70 max-w-xl">{t.sections.vitaminUniverseSub}</p>
           </div>
-          <a href="#" className="inline-flex items-center gap-2 text-gold hover:text-cream transition">
+          <a href="#products-section" className="inline-flex items-center gap-2 text-gold hover:text-cream transition">
             {t.universe.viewAll} <ArrowRight className="size-4" />
           </a>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
           {groups.map((g) => (
-            <a key={g.name} href="#" className="group p-5 rounded-2xl bg-cream/[0.06] hover:bg-cream/10 border border-cream/10 hover:border-gold/40 transition">
+            <a
+              key={g.name}
+              href={`/?search=${encodeURIComponent(g.name)}#products-section`}
+              onClick={(e) => {
+                e.preventDefault();
+                const url = new URL(window.location.href);
+                url.searchParams.set("search", g.name);
+                window.history.pushState({}, "", url.toString());
+                window.dispatchEvent(new Event("popstate"));
+                const el = document.getElementById("products-section");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className="group p-5 rounded-2xl bg-cream/[0.06] hover:bg-cream/10 border border-cream/10 hover:border-gold/40 transition cursor-pointer"
+            >
               <div className="flex items-center justify-between mb-3">
                 <div className="size-9 rounded-full bg-gold/15 grid place-items-center group-hover:bg-gold transition">
                   <Leaf className="size-4 text-gold group-hover:text-forest-deep transition" />
@@ -269,36 +284,175 @@ function VitaminUniverse() {
 }
 
 /* ---------- BESTSELLERS ---------- */
+function normalizeCategory(cat: string): string {
+  const c = cat.toLowerCase().trim();
+  if (c.includes("витамин") || c.includes("vitamin") || c.includes("бад") || c.includes("supplements") || c.includes("bad")) return "vitamins";
+  if (c.includes("сахар") || c.includes("sugar-free") || c.includes("sugarfree") || c.includes("shakarsiz")) return "sugarFree";
+  if (c.includes("глютен") || c.includes("gluten-free") || c.includes("glutenfree") || c.includes("glutensiz")) return "glutenFree";
+  if (c.includes("красот") || c.includes("beauty") || c.includes("go'zallik")) return "beauty";
+  if (c.includes("десерт") || c.includes("dessert")) return "desserts";
+  if (c.includes("хлеб") || c.includes("bread") || c.includes("non")) return "bread";
+  if (c.includes("напит") || c.includes("drink") || c.includes("beverage") || c.includes("ichimlik")) return "drinks";
+  if (c.includes("перекус") || c.includes("snack") || c.includes("yengil taom")) return "snacks";
+  return c;
+}
+
+/* ---------- BESTSELLERS ---------- */
 function Bestsellers() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const [products, setProducts] = useState<Product[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const defaultProducts: Product[] = [
-    { id: "1", name: "Premium Omega 3 Fish Oil", category: "Supplements", price: 285000, oldPrice: 340000, rating: 4.9, reviews: 312, image: prodOmega, badge: "sale" },
-    { id: "2", name: "Marine Collagen + Vitamin C", category: "Beauty", price: 420000, rating: 4.8, reviews: 198, image: prodCol, badge: "new" },
-    { id: "3", name: "Vitamin D₃ 5000 IU", category: "Vitamins", price: 175000, rating: 4.9, reviews: 421, image: prodVitD, badge: "bestseller" },
-    { id: "4", name: "Organic Chia Seeds 500g", category: "Superfoods", price: 89000, oldPrice: 110000, rating: 4.7, reviews: 156, image: prodChia },
-    { id: "5", name: "Raw Almond Butter", category: "Organic", price: 145000, rating: 4.8, reviews: 89, image: prodAlm, badge: "new" },
-    { id: "6", name: "Ceremonial Matcha Powder", category: "Tea & Coffee", price: 320000, rating: 4.9, reviews: 245, image: prodMat },
+    { id: "1", name: "Premium Omega 3 Fish Oil", category: "БАДы", price: 285000, oldPrice: 340000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
+    { id: "2", name: "Marine Collagen + Vitamin C", category: "Красота", price: 420000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
+    { id: "3", name: "Vitamin D₃ 5000 IU", category: "Витамины", price: 175000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
+    { id: "4", name: "Organic Chia Seeds 500g", category: "Суперфуды", price: 89000, oldPrice: 110000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg" },
+    { id: "5", name: "Raw Almond Butter", category: "Десерты", price: 145000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
+    { id: "6", name: "Ceremonial Matcha Powder", category: "Напитки", price: 320000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg" },
   ];
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("ohc_products");
-      setProducts(raw ? JSON.parse(raw) : defaultProducts);
-    } catch {
-      setProducts(defaultProducts);
-    }
+    // Fetch products from server API
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts(defaultProducts);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch products", err);
+        setProducts(defaultProducts);
+      });
   }, []);
 
+  useEffect(() => {
+    const handleHashAndSearch = () => {
+      const params = new URLSearchParams(window.location.search);
+      const search = params.get("search") || "";
+      const hash = window.location.hash;
+      
+      setSearchQuery(search);
+      
+      if (hash.startsWith("#category-")) {
+        const cat = hash.replace("#category-", "");
+        setActiveCategory(cat);
+        // Scroll to products section
+        setTimeout(() => {
+          const el = document.getElementById("products-section");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      } else if (!hash) {
+        setActiveCategory("all");
+      }
+    };
+    
+    handleHashAndSearch();
+    window.addEventListener("hashchange", handleHashAndSearch);
+    window.addEventListener("popstate", handleHashAndSearch);
+    
+    return () => {
+      window.removeEventListener("hashchange", handleHashAndSearch);
+      window.removeEventListener("popstate", handleHashAndSearch);
+    };
+  }, []);
+
+  const categoriesList = [
+    { key: "all", label: lang === "ru" ? "Все" : lang === "uz" ? "Barchasi" : "All" },
+    { key: "vitamins", label: t.nav.vitamins },
+    { key: "sugarFree", label: t.nav.sugarFree },
+    { key: "glutenFree", label: t.nav.glutenFree },
+    { key: "desserts", label: t.nav.desserts },
+    { key: "bread", label: t.nav.bread },
+    { key: "drinks", label: t.nav.drinks },
+  ];
+
+  const filteredProducts = products.filter((p) => {
+    // 1. Search Query Filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesName = p.name.toLowerCase().includes(q);
+      const matchesCat = p.category.toLowerCase().includes(q);
+      if (!matchesName && !matchesCat) return false;
+    }
+
+    // 2. Category Filter
+    if (activeCategory !== "all") {
+      const normalizedP = normalizeCategory(p.category);
+      if (normalizedP !== activeCategory) return false;
+    }
+
+    return true;
+  });
+
   return (
-    <section className="container mx-auto px-6 py-20 md:py-28">
+    <section className="container mx-auto px-6 py-20 md:py-28" id="products-section">
       <SectionHeader title={t.sections.bestsellers} sub={t.sections.bestsellersSub} />
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
+      
+      {/* Category Filter Pills */}
+      <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-6 mb-8 -mx-6 px-6 md:mx-0 md:px-0">
+        {categoriesList.map((cat) => {
+          const isActive = activeCategory === cat.key;
+          return (
+            <button
+              key={cat.key}
+              onClick={() => {
+                setActiveCategory(cat.key);
+                // Update URL hash without reloading page
+                const newHash = cat.key === "all" ? "" : `#category-${cat.key}`;
+                window.history.pushState({}, "", window.location.pathname + window.location.search + newHash);
+              }}
+              className={`h-11 px-6 rounded-full text-sm font-medium transition whitespace-nowrap cursor-pointer ${
+                isActive
+                  ? "bg-forest text-cream shadow-md"
+                  : "bg-secondary text-forest hover:bg-secondary/80"
+              }`}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
       </div>
+
+      {searchQuery && (
+        <div className="flex items-center gap-3 bg-secondary text-forest px-5 py-2.5 rounded-2xl w-fit mb-8 animate-fade-in">
+          <span className="text-sm">
+            {lang === "ru" ? "Результаты поиска для" : lang === "uz" ? "Qidiruv natijalari" : "Search results for"}: <strong className="font-semibold">"{searchQuery}"</strong>
+          </span>
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              // clear url search param
+              const url = new URL(window.location.href);
+              url.searchParams.delete("search");
+              window.history.pushState({}, "", url.toString());
+              window.dispatchEvent(new Event("popstate"));
+            }}
+            className="text-xs bg-forest text-cream rounded-full px-2.5 py-1 hover:bg-forest-deep transition cursor-pointer"
+          >
+            {lang === "ru" ? "Сбросить" : lang === "uz" ? "Tozalash" : "Clear"}
+          </button>
+        </div>
+      )}
+
+      {filteredProducts.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground border border-dashed border-border rounded-3xl">
+          <p className="text-lg font-medium">{lang === "ru" ? "Товары не найдены" : lang === "uz" ? "Mahsulotlar topilmadi" : "No products found"}</p>
+          <p className="text-sm mt-1">{lang === "ru" ? "Попробуйте изменить параметры фильтрации или поиска" : lang === "uz" ? "Qidiruv parametrlarini o'zgartirib ko'ring" : "Try changing filter options or search term"}</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6">
+          {filteredProducts.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -376,7 +530,7 @@ function Journal() {
     { tag: t.journal.post3Tag, title: t.journal.post3Title, img: catDr, read: t.journal.post3Read },
   ];
   return (
-    <section className="container mx-auto px-6 py-20 md:py-28">
+    <section className="container mx-auto px-6 py-20 md:py-28" id="blog">
       <div className="flex items-end justify-between mb-12 gap-6 flex-wrap">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-forest text-[11px] uppercase tracking-widest mb-4">
@@ -384,7 +538,7 @@ function Journal() {
           </div>
           <h2 className="font-display text-4xl md:text-5xl text-forest text-balance max-w-xl">{t.sections.journalSub}</h2>
         </div>
-        <a href="#" className="inline-flex items-center gap-2 text-forest font-medium hover:gap-3 transition-all">
+        <a href="#blog" className="inline-flex items-center gap-2 text-forest font-medium hover:gap-3 transition-all">
           {t.journal.allArticles} <ArrowRight className="size-4" />
         </a>
       </div>
@@ -456,7 +610,7 @@ function SectionHeader({ title, sub }: { title: string; sub: string }) {
         <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-forest leading-[1.05] text-balance">{title}</h2>
         <p className="mt-3 text-muted-foreground max-w-md">{sub}</p>
       </div>
-      <a href="#" className="inline-flex items-center gap-2 text-forest font-medium hover:gap-3 transition-all whitespace-nowrap">
+      <a href="#products-section" className="inline-flex items-center gap-2 text-forest font-medium hover:gap-3 transition-all whitespace-nowrap">
         {t.universe.viewAll} <ArrowRight className="size-4" />
       </a>
     </div>
