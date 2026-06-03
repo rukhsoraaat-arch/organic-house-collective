@@ -47,8 +47,19 @@ export function SiteFooter() {
               A curated marketplace for vitamins, supplements, and organic essentials — built around a healthier, more conscious everyday.
             </p>
             <div className="flex items-center gap-3 pt-2">
-              {[Instagram, Facebook, Youtube, Send].map((Icon, i) => (
-                <a key={i} href="#" className="size-10 grid place-items-center rounded-full border border-cream/15 hover:bg-gold hover:text-forest-deep hover:border-gold transition">
+              {[
+                { Icon: Instagram, href: "https://instagram.com" },
+                { Icon: Facebook, href: "https://facebook.com" },
+                { Icon: Youtube, href: "https://youtube.com" },
+                { Icon: Send, href: "https://t.me/OrganicHouseOrderBot" },
+              ].map(({ Icon, href }, i) => (
+                <a 
+                  key={i} 
+                  href={href} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="size-10 grid place-items-center rounded-full border border-cream/15 hover:bg-gold hover:text-forest-deep hover:border-gold transition cursor-pointer"
+                >
                   <Icon className="size-4" />
                 </a>
               ))}
