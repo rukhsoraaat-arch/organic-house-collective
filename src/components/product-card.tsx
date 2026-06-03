@@ -1,4 +1,5 @@
-import { Heart, Eye, ShoppingBag, Star } from "lucide-react";
+import { useState } from "react";
+import { Heart, Eye, ShoppingBag, Star, X } from "lucide-react";
 import { useLang } from "@/lib/lang-context";
 import { useCart } from "@/lib/cart-context";
 import { toast } from "sonner";
@@ -20,8 +21,9 @@ function fmt(price: number) {
 }
 
 export function ProductCard({ product }: { product: Product }) {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const { addToCart } = useCart();
+  const [showQuickView, setShowQuickView] = useState(false);
   const discount = product.oldPrice
     ? Math.round(100 - (product.price / product.oldPrice) * 100)
     : 0;
@@ -54,10 +56,26 @@ export function ProductCard({ product }: { product: Product }) {
 
         {/* Floating actions */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all">
-          <button aria-label="Wishlist" className="size-9 grid place-items-center rounded-full bg-card/95 backdrop-blur text-forest hover:bg-forest hover:text-cream transition shadow-soft">
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toast.success(lang === "ru" ? `Добавлено в избранное: ${product.name}` : lang === "uz" ? `Saralanganlarga qo'shildi: ${product.name}` : `Added to wishlist: ${product.name}`);
+            }}
+            aria-label="Wishlist" 
+            className="size-9 grid place-items-center rounded-full bg-card/95 backdrop-blur text-forest hover:bg-forest hover:text-cream transition shadow-soft cursor-pointer"
+          >
             <Heart className="size-4" />
           </button>
-          <button aria-label="Quick view" className="size-9 grid place-items-center rounded-full bg-card/95 backdrop-blur text-forest hover:bg-forest hover:text-cream transition shadow-soft">
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowQuickView(true);
+            }}
+            aria-label="Quick view" 
+            className="size-9 grid place-items-center rounded-full bg-card/95 backdrop-blur text-forest hover:bg-forest hover:text-cream transition shadow-soft cursor-pointer"
+          >
             <Eye className="size-4" />
           </button>
         </div>
@@ -100,6 +118,92 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
       </div>
+
+      {showQuickView && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
+          onClick={() => setShowQuickView(false)}
+        >
+          <div 
+            className="bg-card text-foreground border border-border/40 rounded-3xl w-full max-w-2xl relative shadow-2xl animate-scale-in flex flex-col md:flex-row overflow-hidden max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button 
+              onClick={() => setShowQuickView(false)}
+              className="absolute right-4 top-4 size-9 rounded-full bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground grid place-items-center transition cursor-pointer z-10"
+              aria-label="Close dialog"
+            >
+              <X className="size-4" />
+            </button>
+
+            {/* Left: Image */}
+            <div className="w-full md:w-1/2 aspect-square md:aspect-auto bg-secondary relative">
+              <img 
+                src={product.image} 
+                alt={product.name} 
+                className="w-full h-full object-cover"
+              />
+              {product.badge && (
+                <div className="absolute top-4 left-4">
+                  <span className="px-2.5 py-1 rounded-full bg-forest text-cream text-[10px] font-semibold uppercase tracking-wider">
+                    {t.product[product.badge] || product.badge}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Info */}
+            <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                  {product.category}
+                </div>
+                <h2 className="font-display text-2xl text-forest mb-3 leading-tight">{product.name}</h2>
+                
+                {/* Rating */}
+                <div className="flex items-center gap-1.5 mb-4">
+                  <Star className="size-4 fill-gold text-gold" />
+                  <span className="text-sm font-semibold">{product.rating}</span>
+                  <span className="text-xs text-muted-foreground">({product.reviews} {lang === "ru" ? "отзывов" : lang === "uz" ? "ta sharh" : "reviews"})</span>
+                </div>
+
+                {/* Price */}
+                <div className="flex items-baseline gap-2 mb-6">
+                  <span className="font-bold text-forest text-2xl">{fmt(product.price)}</span>
+                  {product.oldPrice && (
+                    <span className="text-base text-muted-foreground line-through">
+                      {fmt(product.oldPrice)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Description */}
+                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                  {lang === "ru" 
+                    ? "Премиальный продукт высочайшего качества для поддержания здоровья и жизненного тонуса. 100% органические сертифицированные ингредиенты." 
+                    : lang === "uz" 
+                    ? "Sog'liq va hayotiy tonusni saqlash uchun yuqori sifatli mahsulot. 100% organik va sertifikatlangan ingredientlar." 
+                    : "Premium high-quality product to support overall wellness and vitality. Made with 100% certified organic ingredients."}
+                </p>
+              </div>
+
+              {/* Action */}
+              <button
+                onClick={() => {
+                  addToCart(product);
+                  toast.success(t.product.addToCart + ": " + product.name);
+                  setShowQuickView(false);
+                }}
+                className="w-full h-12 rounded-full bg-forest text-cream font-medium flex items-center justify-center gap-2 hover:bg-forest-deep transition cursor-pointer"
+              >
+                <ShoppingBag className="size-4" />
+                {t.product.addToCart}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
