@@ -7,21 +7,36 @@ export function SiteFooter() {
   const cols = [
     {
       title: "Organic House",
-      links: [t.footer.about, t.footer.stores, t.footer.blog, "Careers"],
+      links: [
+        { label: t.footer.about, href: "#about" },
+        { label: t.footer.stores, href: "#stores" },
+        { label: t.footer.blog, href: "#blog" },
+        { label: "Careers", href: "#about" }
+      ],
     },
     {
       title: t.footer.contact,
-      links: [t.footer.delivery, t.footer.returns, "FAQ", "Help center"],
+      links: [
+        { label: t.footer.delivery, href: "#delivery" },
+        { label: t.footer.returns, href: "#delivery" },
+        { label: "FAQ", href: "#help" },
+        { label: "Help center", href: "#help" }
+      ],
     },
     {
       title: "Legal",
-      links: [t.footer.privacy, "Terms", "Cookies", "Compliance"],
+      links: [
+        { label: t.footer.privacy, href: "#" },
+        { label: "Terms", href: "#" },
+        { label: "Cookies", href: "#" },
+        { label: "Compliance", href: "#" }
+      ],
     },
   ];
 
   return (
-    <footer className="bg-forest text-cream mt-24">
-      <div className="container mx-auto px-6 py-16 md:py-20">
+    <footer className="bg-forest text-cream mt-24" id="stores">
+      <div className="container mx-auto px-6 py-16 md:py-20" id="help">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12">
           <div className="lg:col-span-2 space-y-5">
             <div className="flex items-center gap-3">
@@ -45,8 +60,8 @@ export function SiteFooter() {
               <h4 className="text-gold font-display text-lg mb-4">{col.title}</h4>
               <ul className="space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={l}>
-                    <a href="#" className="text-cream/70 hover:text-cream text-sm transition">{l}</a>
+                  <li key={l.label}>
+                    <a href={l.href} className="text-cream/70 hover:text-cream text-sm transition">{l.label}</a>
                   </li>
                 ))}
               </ul>
