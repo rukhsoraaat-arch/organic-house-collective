@@ -24,10 +24,36 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const [searchVal, setSearchVal] = useState("");
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchVal.trim()) {
+      if (window.location.pathname !== "/") {
+        window.location.href = `/?search=${encodeURIComponent(searchVal)}#products-section`;
+      } else {
+        const url = new URL(window.location.href);
+        url.searchParams.set("search", searchVal);
+        url.hash = "";
+        window.history.pushState({}, "", url.toString());
+        window.dispatchEvent(new Event("popstate"));
+        
+        const el = document.getElementById("products-section");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    }
+  };
+
   const navItems = [
-    t.nav.vitamins, t.nav.sugarFree, t.nav.glutenFree,
-    t.nav.snacks, t.nav.beauty,
-    t.nav.desserts, t.nav.bread, t.nav.drinks,
+    { key: "vitamins", label: t.nav.vitamins },
+    { key: "sugarFree", label: t.nav.sugarFree },
+    { key: "glutenFree", label: t.nav.glutenFree },
+    { key: "beauty", label: t.nav.beauty },
+    { key: "desserts", label: t.nav.desserts },
+    { key: "bread", label: t.nav.bread },
+    { key: "drinks", label: t.nav.drinks },
   ];
 
   return (
@@ -64,16 +90,18 @@ export function SiteHeader() {
         </a>
 
         {/* Search */}
-        <div className="flex-1 max-w-2xl hidden md:block">
+        <form onSubmit={handleSearchSubmit} className="flex-1 max-w-2xl hidden md:block">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <input
               type="search"
+              value={searchVal}
+              onChange={e => setSearchVal(e.target.value)}
               placeholder={t.searchPlaceholder}
               className="w-full h-12 pl-11 pr-4 rounded-full bg-secondary/60 border border-transparent focus:border-forest focus:bg-card focus:outline-none transition text-sm placeholder:text-muted-foreground"
             />
           </div>
-        </div>
+        </form>
 
         {/* Actions */}
         <div className="flex items-center gap-1 md:gap-2 ml-auto">
@@ -103,35 +131,39 @@ export function SiteHeader() {
             )}
           </div>
 
-          <IconBtn label={t.header.account}><User className="size-5" /></IconBtn>
+          <a href="/admin" title={t.header.account}>
+            <IconBtn label={t.header.account}><User className="size-5" /></IconBtn>
+          </a>
           <IconBtn label={t.header.wishlist} badge="3"><Heart className="size-5" /></IconBtn>
           <IconBtn onClick={() => setIsCartOpen(true)} label={t.header.cart} badge={totalItems > 0 ? String(totalItems) : undefined}><ShoppingBag className="size-5" /></IconBtn>
         </div>
       </div>
 
       {/* Mobile search */}
-      <div className="md:hidden px-4 pb-3">
+      <form onSubmit={handleSearchSubmit} className="md:hidden px-4 pb-3">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <input
             type="search"
+            value={searchVal}
+            onChange={e => setSearchVal(e.target.value)}
             placeholder={t.searchPlaceholder}
             className="w-full h-11 pl-11 pr-4 rounded-full bg-secondary/60 border border-transparent focus:outline-none text-sm"
           />
         </div>
-      </div>
+      </form>
 
       {/* Categories nav */}
       <nav className="hidden lg:block border-t border-border/60">
         <div className="container mx-auto px-6">
           <ul className="flex items-center gap-7 h-12 text-sm overflow-x-auto scrollbar-none">
             {navItems.map((item) => (
-              <li key={item}>
+              <li key={item.key}>
                 <a
-                  href={`#${item}`}
+                  href={`/#category-${item.key}`}
                   className="relative text-foreground/80 hover:text-forest transition whitespace-nowrap font-medium"
                 >
-                  {item}
+                  {item.label}
                 </a>
               </li>
             ))}
