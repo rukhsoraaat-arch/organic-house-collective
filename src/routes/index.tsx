@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, Leaf, Sparkles, Truck, ShieldCheck, BookOpen, Play } from "lucide-react";
+import { ArrowRight, Leaf, Sparkles, Truck, ShieldCheck, BookOpen, Play, X } from "lucide-react";
 import { LangProvider, useLang } from "@/lib/lang-context";
 import { SiteHeader, AssistantButton } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -33,6 +33,26 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  const [isVitaminModalOpen, setIsVitaminModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleHash = () => {
+      setIsVitaminModalOpen(window.location.hash === "#vitamin-universe");
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    window.addEventListener("popstate", handleHash);
+    return () => {
+      window.removeEventListener("hashchange", handleHash);
+      window.removeEventListener("popstate", handleHash);
+    };
+  }, []);
+
+  const handleCloseModal = () => {
+    window.history.pushState({}, "", window.location.pathname + window.location.search);
+    setIsVitaminModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -40,7 +60,6 @@ function Home() {
         <Hero />
         <ValueStrip />
         <Categories />
-        <VitaminUniverse />
         <Bestsellers />
         <PromoSplit />
         <Brands />
@@ -50,6 +69,7 @@ function Home() {
       <SiteFooter />
       <AssistantButton />
       <CartDrawer />
+      <VitaminUniverseModal isOpen={isVitaminModalOpen} onClose={handleCloseModal} />
     </div>
   );
 }
@@ -184,8 +204,9 @@ function CategoryCard({
   cat, className = "", large = false,
 }: { cat: { key: string; name: string; img: string; count: string }; className?: string; large?: boolean }) {
   const { t } = useLang();
+  const targetHref = cat.key === "vitamins" ? "#vitamin-universe" : `#category-${cat.key}`;
   return (
-    <a href={`#category-${cat.key}`} className={`group relative overflow-hidden rounded-3xl ${className}`}>
+    <a href={targetHref} className={`group relative overflow-hidden rounded-3xl ${className}`}>
       <img src={cat.img} alt={cat.name} loading="lazy" width={800} height={1000} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
       <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/90 via-forest/30 to-transparent" />
       <div className="absolute inset-0 p-5 md:p-6 flex flex-col justify-end text-cream">
@@ -201,9 +222,23 @@ function CategoryCard({
   );
 }
 
-/* ---------- VITAMINS ---------- */
-function VitaminUniverse() {
+/* ---------- VITAMINS MODAL ---------- */
+function VitaminUniverseModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { t } = useLang();
+  
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
   const groups = [
     { name: t.universe.kids, count: 24 },
     { name: t.universe.women, count: 38 },
@@ -230,56 +265,80 @@ function VitaminUniverse() {
   ];
 
   return (
-    <section className="bg-forest text-cream py-20 md:py-28 relative overflow-hidden" id="vitamin-universe-section">
-      <div className="absolute -top-32 -right-32 size-96 rounded-full bg-gold/10 blur-3xl" />
-      <div className="absolute -bottom-32 -left-32 size-96 rounded-full bg-sage/10 blur-3xl" />
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-forest text-cream border border-cream/10 rounded-3xl w-full max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto relative shadow-2xl animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Background blobs inside modal */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-3xl">
+          <div className="absolute -top-32 -right-32 size-80 rounded-full bg-gold/10 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 size-80 rounded-full bg-sage/10 blur-3xl" />
+        </div>
 
-      <div className="container mx-auto px-6 relative">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cream/10 text-gold text-xs uppercase tracking-widest mb-4">
+        {/* Close Button */}
+        <button 
+          onClick={onClose} 
+          className="absolute right-6 top-6 size-10 rounded-full bg-cream/10 hover:bg-cream/20 grid place-items-center text-gold hover:text-cream transition cursor-pointer z-10"
+        >
+          <X className="size-5" />
+        </button>
+
+        <div className="relative z-10">
+          <div className="mb-8 pr-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cream/10 text-gold text-xs uppercase tracking-widest mb-3">
               <Sparkles className="size-3.5" /> Curated selection
             </div>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-cream max-w-2xl text-balance">
+            <h2 className="font-display text-3xl md:text-4xl text-cream leading-tight">
               {t.sections.vitaminUniverse}
             </h2>
-            <p className="mt-4 text-cream/70 max-w-xl">{t.sections.vitaminUniverseSub}</p>
+            <p className="mt-2 text-cream/70 text-sm max-w-xl">{t.sections.vitaminUniverseSub}</p>
           </div>
-          <a href="#products-section" className="inline-flex items-center gap-2 text-gold hover:text-cream transition">
-            {t.universe.viewAll} <ArrowRight className="size-4" />
-          </a>
-        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-          {groups.map((g) => (
-            <a
-              key={g.name}
-              href={`/?search=${encodeURIComponent(g.name)}#products-section`}
-              onClick={(e) => {
-                e.preventDefault();
-                const url = new URL(window.location.href);
-                url.searchParams.set("search", g.name);
-                window.history.pushState({}, "", url.toString());
-                window.dispatchEvent(new Event("popstate"));
-                const el = document.getElementById("products-section");
-                if (el) {
-                  el.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-              className="group p-5 rounded-2xl bg-cream/[0.06] hover:bg-cream/10 border border-cream/10 hover:border-gold/40 transition cursor-pointer"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="size-9 rounded-full bg-gold/15 grid place-items-center group-hover:bg-gold transition">
-                  <Leaf className="size-4 text-gold group-hover:text-forest-deep transition" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {groups.map((g) => (
+              <a
+                key={g.name}
+                href={`/?search=${encodeURIComponent(g.name)}#products-section`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Apply search filter
+                  const url = new URL(window.location.href);
+                  url.searchParams.set("search", g.name);
+                  // Also set activeCategory to vitamins so that it is scoped properly
+                  url.hash = "#category-vitamins";
+                  window.history.pushState({}, "", url.toString());
+                  window.dispatchEvent(new Event("popstate"));
+                  
+                  // Close modal
+                  onClose();
+                  
+                  // Scroll down to products
+                  setTimeout(() => {
+                    const el = document.getElementById("products-section");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }, 150);
+                }}
+                className="group p-4 md:p-5 rounded-2xl bg-cream/[0.06] hover:bg-cream/10 border border-cream/10 hover:border-gold/40 transition cursor-pointer"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="size-9 rounded-full bg-gold/15 grid place-items-center group-hover:bg-gold transition">
+                    <Leaf className="size-4 text-gold group-hover:text-forest-deep transition" />
+                  </div>
+                  <span className="text-[11px] text-cream/50">{g.count}</span>
                 </div>
-                <span className="text-[11px] text-cream/50">{g.count}</span>
-              </div>
-              <div className="font-medium text-sm text-cream leading-snug">{g.name}</div>
-            </a>
-          ))}
+                <div className="font-medium text-sm text-cream leading-snug">{g.name}</div>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -403,6 +462,10 @@ function Bestsellers() {
             <button
               key={cat.key}
               onClick={() => {
+                if (cat.key === "vitamins") {
+                  window.location.hash = "#vitamin-universe";
+                  return;
+                }
                 setActiveCategory(cat.key);
                 // Update URL hash without reloading page
                 const newHash = cat.key === "all" ? "" : `#category-${cat.key}`;
