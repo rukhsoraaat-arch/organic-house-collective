@@ -33,8 +33,51 @@ export const Route = createFileRoute("/")({
   ),
 });
 
+const DEFAULT_PRODUCTS: Product[] = [
+  { id: "1", name: "Premium Omega 3 Fish Oil", category: "БАДы", price: 285000, oldPrice: 340000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
+  { id: "2", name: "Marine Collagen + Vitamin C", category: "Красота", price: 420000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
+  { id: "3", name: "Vitamin D₃ 5000 IU", category: "Витамины", price: 175000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
+  { id: "4", name: "Organic Chia Seeds 500g", category: "Суперфуды", price: 89000, oldPrice: 110000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg" },
+  { id: "5", name: "Raw Almond Butter", category: "Десерты", price: 145000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
+  { id: "6", name: "Ceremonial Matcha Powder", category: "Напитки", price: 320000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg" },
+];
+
+
 function Home() {
   const [isVitaminModalOpen, setIsVitaminModalOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    // Load custom products from localStorage
+    let customProds: Product[] = [];
+    try {
+      const saved = localStorage.getItem("ohc_custom_products");
+      if (saved) customProds = JSON.parse(saved);
+    } catch (e) {
+      console.error("Failed to parse custom products", e);
+    }
+
+    // Fetch products from server API
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const merged = [...data];
+          customProds.forEach(cp => {
+            if (!merged.some(p => p.id === cp.id)) {
+              merged.push(cp);
+            }
+          });
+          setProducts(merged);
+        } else {
+          setProducts([...DEFAULT_PRODUCTS, ...customProds]);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch products", err);
+        setProducts([...DEFAULT_PRODUCTS, ...customProds]);
+      });
+  }, []);
 
   useEffect(() => {
     const handleHash = () => {
@@ -62,7 +105,7 @@ function Home() {
         <Hero />
         <ValueStrip />
         <Categories />
-        <Bestsellers />
+        <Bestsellers products={products} />
         <PromoSplit />
         <Brands />
         <Journal />
@@ -71,7 +114,7 @@ function Home() {
       <SiteFooter />
       <AssistantButton />
       <CartDrawer />
-      <VitaminUniverseModal isOpen={isVitaminModalOpen} onClose={handleCloseModal} />
+      <VitaminUniverseModal isOpen={isVitaminModalOpen} onClose={handleCloseModal} products={products} />
     </div>
   );
 }
@@ -236,7 +279,7 @@ function CategoryCard({
 }
 
 /* ---------- VITAMINS MODAL ---------- */
-function VitaminUniverseModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+function VitaminUniverseModal({ isOpen, onClose, products }: { isOpen: boolean; onClose: () => void; products: Product[] }) {
   const { t } = useLang();
   
   useEffect(() => {
@@ -252,30 +295,45 @@ function VitaminUniverseModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
   if (!isOpen) return null;
 
+  const getCustomCount = (groupName: string) => {
+    return products.filter((p) => {
+      // Exclude default products
+      const isDefault = ["1", "2", "3", "4", "5", "6"].includes(p.id);
+      if (isDefault) return false;
+
+      // Must normalize to vitamins
+      if (normalizeCategory(p.category) !== "vitamins") return false;
+
+      // Must match search query for this group
+      return matchSearch(p, groupName);
+    }).length;
+  };
+
   const groups = [
-    { name: t.universe.kids, count: 24 },
-    { name: t.universe.women, count: 38 },
-    { name: t.universe.men, count: 32 },
-    { name: t.universe.pregnancy, count: 18 },
-    { name: t.universe.immunity, count: 41 },
-    { name: t.universe.beauty, count: 27 },
-    { name: t.universe.hair, count: 19 },
-    { name: t.universe.weight, count: 22 },
-    { name: t.universe.sports, count: 35 },
-    { name: t.universe.sleep, count: 16 },
-    { name: t.universe.brain, count: 21 },
-    { name: t.universe.stress, count: 15 },
-    { name: t.universe.energy, count: 28 },
-    { name: t.universe.omega, count: 14 },
-    { name: t.universe.magnesium, count: 12 },
-    { name: t.universe.zinc, count: 9 },
-    { name: t.universe.collagen, count: 17 },
-    { name: t.universe.vitD, count: 23 },
-    { name: t.universe.vitC, count: 19 },
-    { name: t.universe.probiotics, count: 26 },
-    { name: t.universe.multivitamins, count: 31 },
-    { name: t.universe.superfoods, count: 18 },
+    { name: t.universe.kids, count: 24 + getCustomCount(t.universe.kids) },
+    { name: t.universe.women, count: 38 + getCustomCount(t.universe.women) },
+    { name: t.universe.men, count: 32 + getCustomCount(t.universe.men) },
+    { name: t.universe.pregnancy, count: 18 + getCustomCount(t.universe.pregnancy) },
+    { name: t.universe.immunity, count: 41 + getCustomCount(t.universe.immunity) },
+    { name: t.universe.beauty, count: 27 + getCustomCount(t.universe.beauty) },
+    { name: t.universe.hair, count: 19 + getCustomCount(t.universe.hair) },
+    { name: t.universe.weight, count: 22 + getCustomCount(t.universe.weight) },
+    { name: t.universe.sports, count: 35 + getCustomCount(t.universe.sports) },
+    { name: t.universe.sleep, count: 16 + getCustomCount(t.universe.sleep) },
+    { name: t.universe.brain, count: 21 + getCustomCount(t.universe.brain) },
+    { name: t.universe.stress, count: 15 + getCustomCount(t.universe.stress) },
+    { name: t.universe.energy, count: 28 + getCustomCount(t.universe.energy) },
+    { name: t.universe.omega, count: 14 + getCustomCount(t.universe.omega) },
+    { name: t.universe.magnesium, count: 12 + getCustomCount(t.universe.magnesium) },
+    { name: t.universe.zinc, count: 9 + getCustomCount(t.universe.zinc) },
+    { name: t.universe.collagen, count: 17 + getCustomCount(t.universe.collagen) },
+    { name: t.universe.vitD, count: 23 + getCustomCount(t.universe.vitD) },
+    { name: t.universe.vitC, count: 19 + getCustomCount(t.universe.vitC) },
+    { name: t.universe.probiotics, count: 26 + getCustomCount(t.universe.probiotics) },
+    { name: t.universe.multivitamins, count: 31 + getCustomCount(t.universe.multivitamins) },
+    { name: t.universe.superfoods, count: 18 + getCustomCount(t.universe.superfoods) },
   ];
+
 
   return (
     <div 
@@ -541,52 +599,11 @@ function matchSearch(product: Product, query: string): boolean {
 }
 
 /* ---------- BESTSELLERS ---------- */
-function Bestsellers() {
+function Bestsellers({ products }: { products: Product[] }) {
   const { lang, t } = useLang();
-  const [products, setProducts] = useState<Product[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const defaultProducts: Product[] = [
-    { id: "1", name: "Premium Omega 3 Fish Oil", category: "БАДы", price: 285000, oldPrice: 340000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
-    { id: "2", name: "Marine Collagen + Vitamin C", category: "Красота", price: 420000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
-    { id: "3", name: "Vitamin D₃ 5000 IU", category: "Витамины", price: 175000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
-    { id: "4", name: "Organic Chia Seeds 500g", category: "Суперфуды", price: 89000, oldPrice: 110000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg" },
-    { id: "5", name: "Raw Almond Butter", category: "Десерты", price: 145000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
-    { id: "6", name: "Ceremonial Matcha Powder", category: "Напитки", price: 320000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg" },
-  ];
-
-  useEffect(() => {
-    // Load custom products from localStorage
-    let customProds: Product[] = [];
-    try {
-      const saved = localStorage.getItem("ohc_custom_products");
-      if (saved) customProds = JSON.parse(saved);
-    } catch (e) {
-      console.error("Failed to parse custom products", e);
-    }
-
-    // Fetch products from server API
-    fetch("/api/products")
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const merged = [...data];
-          customProds.forEach(cp => {
-            if (!merged.some(p => p.id === cp.id)) {
-              merged.push(cp);
-            }
-          });
-          setProducts(merged);
-        } else {
-          setProducts([...defaultProducts, ...customProds]);
-        }
-      })
-      .catch(err => {
-        console.error("Failed to fetch products", err);
-        setProducts([...defaultProducts, ...customProds]);
-      });
-  }, []);
 
   useEffect(() => {
     const handleHashAndSearch = () => {
