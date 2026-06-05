@@ -29,13 +29,23 @@ export function SiteHeader() {
 
   const [searchVal, setSearchVal] = useState("");
 
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      setSearchVal(params.get("search") || "");
+    };
+    handlePopState();
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const url = new URL(window.location.href);
     if (searchVal.trim()) {
       if (window.location.pathname !== "/") {
         window.location.href = `/?search=${encodeURIComponent(searchVal)}#products-section`;
       } else {
-        const url = new URL(window.location.href);
         url.searchParams.set("search", searchVal);
         url.hash = "";
         window.history.pushState({}, "", url.toString());
@@ -45,6 +55,38 @@ export function SiteHeader() {
         if (el) {
           el.scrollIntoView({ behavior: "smooth" });
         }
+      }
+    } else {
+      if (window.location.pathname === "/") {
+        url.searchParams.delete("search");
+        url.hash = "";
+        window.history.pushState({}, "", url.toString());
+        window.dispatchEvent(new Event("popstate"));
+      } else {
+        window.location.href = "/";
+      }
+    }
+  };
+
+  const handleNavClick = (key: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    const isVitamins = key === "vitamins";
+
+    if (window.location.pathname !== "/") {
+      window.location.href = isVitamins ? "/#vitamin-universe" : `/#category-${key}`;
+    } else {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("search");
+      url.hash = isVitamins ? "#vitamin-universe" : `#category-${key}`;
+      window.history.pushState({}, "", url.toString());
+      window.dispatchEvent(new Event("popstate"));
+      
+      if (!isVitamins) {
+        setTimeout(() => {
+          const el = document.getElementById("products-section");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }, 100);
       }
     }
   };
@@ -99,7 +141,7 @@ export function SiteHeader() {
                     <a
                       key={item.key}
                       href={href}
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={(e) => handleNavClick(item.key, e)}
                       className="block px-3 py-2 text-sm font-medium text-foreground/80 hover:text-forest hover:bg-secondary rounded-xl transition"
                     >
                       {item.label}
@@ -207,6 +249,7 @@ export function SiteHeader() {
                 <li key={item.key}>
                   <a
                     href={href}
+                    onClick={(e) => handleNavClick(item.key, e)}
                     className="relative text-foreground/80 hover:text-forest transition whitespace-nowrap font-medium"
                   >
                     {item.label}
