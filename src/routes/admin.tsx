@@ -689,6 +689,36 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
 /* ══════════════════════════════════════════════════════
    PRODUCT FORM (shared between Edit & Add)
 ══════════════════════════════════════════════════════ */
+const CATEGORY_OPTIONS = [
+  "Витамины для детей",
+  "Витамины для женщин",
+  "Витамины для мужчин",
+  "Витамины при беременности",
+  "Поддержка иммунитета",
+  "Красота и кожа",
+  "Волосы и ногти",
+  "Снижение веса",
+  "Спорт и выносливость",
+  "Сон и спокойствие",
+  "Мозг и концентрация",
+  "Снятие стресса",
+  "Энергия и тонус",
+  "Омега 3",
+  "Магний",
+  "Цинк",
+  "Коллаген",
+  "Витамин D",
+  "Витамин C",
+  "Пробиотики",
+  "Мультивитамины",
+  "Смесь суперфудов",
+  "Десерты",
+  "Без сахара",
+  "Без глютена",
+  "Хлеб",
+  "Напитки"
+];
+
 function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabel }: {
   form: Product;
   setForm: (p: Product) => void;
@@ -729,9 +759,19 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
           {/* category */}
           <div>
             <label className="text-white/60 text-sm mb-2 block">Категория</label>
-            <input value={form.category} onChange={e => set("category", e.target.value)}
-              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/60 transition"
-              placeholder="напр. Добавки, Красота, Витамины" />
+            <select
+              value={form.category}
+              onChange={e => set("category", e.target.value)}
+              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/60 transition cursor-pointer bg-[#161b22]"
+            >
+              <option value="" disabled className="text-white/30">Выберите категорию...</option>
+              {CATEGORY_OPTIONS.map(opt => (
+                <option key={opt} value={opt} className="bg-[#161b22] text-white">{opt}</option>
+              ))}
+              {form.category && !CATEGORY_OPTIONS.includes(form.category) && (
+                <option value={form.category} className="bg-[#161b22] text-white">{form.category}</option>
+              )}
+            </select>
           </div>
 
           {/* prices — 3 fields */}
