@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
@@ -66,9 +67,46 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+const PRODUCTS_FILE = "./products.json";
+
+const DEFAULT_PRODUCTS = [
+  { id: "7", name: "Solaray, Artichoke 60 капсул", category: "Витамины", price: 185000, costPrice: 95000, rating: 4.8, reviews: 42, image: "/assets/prod-artichoke.png", badge: "" },
+  { id: "8", name: "Natures plus, Animal Parade", category: "Детские витамины", price: 260000, costPrice: 130000, rating: 4.9, reviews: 85, image: "/assets/prod-animalparade.png", badge: "bestseller" },
+];
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      if (url.pathname === "/api/products") {
+        if (request.method === "GET") {
+          let data = DEFAULT_PRODUCTS;
+          if (fs.existsSync(PRODUCTS_FILE)) {
+            try {
+              data = JSON.parse(fs.readFileSync(PRODUCTS_FILE, "utf8"));
+            } catch (e) {
+              console.error("Error reading products.json file", e);
+            }
+          }
+          return new Response(JSON.stringify(data), {
+            headers: {
+              "content-type": "application/json; charset=utf-8",
+              "cache-control": "no-store, no-cache, must-revalidate",
+            },
+          });
+        }
+        
+        if (request.method === "POST") {
+          const body = await request.json();
+          if (Array.isArray(body)) {
+            fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(body, null, 2), "utf8");
+            return new Response(JSON.stringify({ success: true }), {
+              headers: { "content-type": "application/json" },
+            });
+          }
+        }
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

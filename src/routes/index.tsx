@@ -22,6 +22,8 @@ import prodVitD from "@/assets/prod-vitd.jpg";
 import prodChia from "@/assets/prod-chia.jpg";
 import prodAlm from "@/assets/prod-almond.jpg";
 import prodMat from "@/assets/prod-matcha.jpg";
+import prodArtichoke from "@/assets/prod-artichoke.png";
+import prodAnimalParade from "@/assets/prod-animalparade.png";
 
 export const Route = createFileRoute("/")({
   component: () => (
@@ -34,49 +36,105 @@ export const Route = createFileRoute("/")({
 });
 
 const DEFAULT_PRODUCTS: Product[] = [
-  { id: "1", name: "Premium Omega 3 Fish Oil", category: "БАДы", price: 285000, oldPrice: 340000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
-  { id: "2", name: "Marine Collagen + Vitamin C", category: "Красота", price: 420000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
-  { id: "3", name: "Vitamin D₃ 5000 IU", category: "Витамины", price: 175000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
-  { id: "4", name: "Organic Chia Seeds 500g", category: "Суперфуды", price: 89000, oldPrice: 110000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg" },
-  { id: "5", name: "Raw Almond Butter", category: "Десерты", price: 145000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
-  { id: "6", name: "Ceremonial Matcha Powder", category: "Напитки", price: 320000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg" },
+  { id: "7", name: "Solaray, Artichoke 60 капсул", category: "Витамины", price: 185000, rating: 4.8, reviews: 42, image: prodArtichoke },
+  { id: "8", name: "Natures plus, Animal Parade", category: "Детские витамины", price: 260000, rating: 4.9, reviews: 85, image: prodAnimalParade, badge: "bestseller" },
 ];
 
+const STORAGE_VERSION_KEY = "ohc_storage_version";
+const CURRENT_STORAGE_VERSION = "3";
+
+const sanitizeLocalStorage = () => {
+  try {
+    const rawGallery = localStorage.getItem("ohc_gallery");
+    if (rawGallery) {
+      const gallery = JSON.parse(rawGallery) as any[];
+      const cleaned = gallery.filter(img => {
+        if (img && typeof img.url === "string" && img.url.startsWith("data:") && img.url.length > 400000) {
+          return false;
+        }
+        return true;
+      });
+      if (cleaned.length < gallery.length) {
+        localStorage.setItem("ohc_gallery", JSON.stringify(cleaned));
+      }
+    }
+    
+    const rawCustom = localStorage.getItem("ohc_custom_products");
+    if (rawCustom) {
+      const custom = JSON.parse(rawCustom) as any[];
+      const cleaned = custom.map(p => {
+        if (p && typeof p.image === "string" && p.image.startsWith("data:") && p.image.length > 400000) {
+          p.image = "/assets/prod-vitd-k__PCbaP.jpg";
+        }
+        return p;
+      });
+      localStorage.setItem("ohc_custom_products", JSON.stringify(cleaned));
+    }
+  } catch (e) {
+    console.error("Sanitization error:", e);
+  }
+};
+
+const migrateProducts = () => {
+  try {
+    const version = localStorage.getItem(STORAGE_VERSION_KEY);
+    if (version !== CURRENT_STORAGE_VERSION) {
+      localStorage.setItem("ohc_all_products", JSON.stringify(DEFAULT_PRODUCTS));
+      localStorage.setItem("ohc_custom_products", JSON.stringify([]));
+      localStorage.removeItem("ohc_gallery");
+      localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_STORAGE_VERSION);
+    }
+  } catch (e) {
+    console.error("Migration error:", e);
+  }
+};
 
 function Home() {
   const [isVitaminModalOpen, setIsVitaminModalOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    // Load custom products from localStorage
-    let customProds: Product[] = [];
+  const loadProducts = () => {
     try {
-      const saved = localStorage.getItem("ohc_custom_products");
-      if (saved) customProds = JSON.parse(saved);
-    } catch (e) {
-      console.error("Failed to parse custom products", e);
-    }
+      const allSaved = localStorage.getItem("ohc_all_products");
+      if (allSaved) {
+        const parsed = JSON.parse(allSaved) as Product[];
+        parsed.forEach(p => {
+          const defItem = DEFAULT_PRODUCTS.find(d => d.id === p.id);
+          if (defItem) p.image = defItem.image;
+        });
+        setProducts(parsed);
+        return;
+      }
 
-    // Fetch products from server API
-    fetch("/api/products")
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const merged = [...data];
-          customProds.forEach(cp => {
-            if (!merged.some(p => p.id === cp.id)) {
-              merged.push(cp);
-            }
-          });
-          setProducts(merged);
-        } else {
-          setProducts([...DEFAULT_PRODUCTS, ...customProds]);
-        }
-      })
-      .catch(err => {
-        console.error("Failed to fetch products", err);
-        setProducts([...DEFAULT_PRODUCTS, ...customProds]);
+      // Fallback/Migration
+      const oldCustom = localStorage.getItem("ohc_custom_products");
+      let customProds: Product[] = [];
+      if (oldCustom) customProds = JSON.parse(oldCustom);
+
+      const fallback = [...DEFAULT_PRODUCTS, ...customProds];
+      fallback.forEach(p => {
+        const defItem = DEFAULT_PRODUCTS.find(d => d.id === p.id);
+        if (defItem) p.image = defItem.image;
       });
+      setProducts(fallback);
+    } catch (e) {
+      console.error(e);
+      setProducts(DEFAULT_PRODUCTS);
+    }
+  };
+
+  useEffect(() => {
+    sanitizeLocalStorage();
+    migrateProducts();
+    loadProducts();
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "ohc_all_products" || e.key === "ohc_custom_products") {
+        loadProducts();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   useEffect(() => {
@@ -315,7 +373,7 @@ function VitaminUniverseModal({ isOpen, onClose, products }: { isOpen: boolean; 
   const getCustomCount = (groupName: string) => {
     return products.filter((p) => {
       // Exclude default products
-      const isDefault = ["1", "2", "3", "4", "5", "6"].includes(p.id);
+      const isDefault = ["7", "8"].includes(p.id);
       if (isDefault) return false;
 
       // Must normalize to vitamins

@@ -21,6 +21,15 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
+import prodOmega from "@/assets/prod-omega3.jpg";
+import prodCol from "@/assets/prod-collagen.jpg";
+import prodVitD from "@/assets/prod-vitd.jpg";
+import prodChia from "@/assets/prod-chia.jpg";
+import prodAlm from "@/assets/prod-almond.jpg";
+import prodMat from "@/assets/prod-matcha.jpg";
+import prodArtichoke from "@/assets/prod-artichoke.png";
+import prodAnimalParade from "@/assets/prod-animalparade.png";
+
 /* ─── TYPES ─── */
 interface Product {
   id: string;
@@ -38,12 +47,8 @@ interface Product {
 
 /* ─── DEFAULT DATA ─── */
 const DEFAULT_PRODUCTS: Product[] = [
-  { id: "1", name: "Premium Omega 3 Fish Oil", category: "БАДы", price: 285000, oldPrice: 340000, costPrice: 168000, rating: 4.9, reviews: 312, image: "/assets/prod-omega3-C_vjyhwb.jpg", badge: "sale" },
-  { id: "2", name: "Marine Collagen + Vitamin C", category: "Красота", price: 420000, costPrice: 210000, rating: 4.8, reviews: 198, image: "/assets/prod-collagen-BqEX6mLl.jpg", badge: "new" },
-  { id: "3", name: "Vitamin D₃ 5000 IU", category: "Витамины", price: 175000, costPrice: 82000, rating: 4.9, reviews: 421, image: "/assets/prod-vitd-k__PCbaP.jpg", badge: "bestseller" },
-  { id: "4", name: "Organic Chia Seeds 500g", category: "Суперфуды", price: 89000, oldPrice: 110000, costPrice: 45000, rating: 4.7, reviews: 156, image: "/assets/prod-chia-BWTeDBqs.jpg", badge: "" },
-  { id: "5", name: "Raw Almond Butter", category: "Десерты", price: 145000, costPrice: 90000, rating: 4.8, reviews: 89, image: "/assets/prod-almond-D45IKrfv.jpg", badge: "new" },
-  { id: "6", name: "Ceremonial Matcha Powder", category: "Напитки", price: 320000, costPrice: 175000, rating: 4.9, reviews: 245, image: "/assets/prod-matcha-w7IoWVtJ.jpg", badge: "" },
+  { id: "7", name: "Solaray, Artichoke 60 капсул", category: "Витамины", price: 185000, costPrice: 95000, rating: 4.8, reviews: 42, image: prodArtichoke, badge: "" },
+  { id: "8", name: "Natures plus, Animal Parade", category: "Детские витамины", price: 260000, costPrice: 130000, rating: 4.9, reviews: 85, image: prodAnimalParade, badge: "bestseller" },
 ];
 
 const REVENUE_DATA = [
@@ -422,22 +427,57 @@ function GalleryModal({ current, onSelect, onClose }: {
   /* ── File → base64 ── */
   const processFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
-    if (file.size > 5 * 1024 * 1024) { alert("File too large (max 5 MB)"); return; }
+    if (file.size > 10 * 1024 * 1024) { alert("Файл слишком большой (макс 10 МБ)"); return; }
     setUploading(true);
+
     const reader = new FileReader();
-    reader.onload = ev => {
-      const base64 = ev.target?.result as string;
-      const newImg: GalleryImage = {
-        url: base64,
-        label: file.name.replace(/\.[^.]+$/, ""),
-        group: "Uploaded",
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 600;
+        const MAX_HEIGHT = 600;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+          
+          const newImg: GalleryImage = {
+            url: compressedBase64,
+            label: file.name.replace(/\.[^.]+$/, ""),
+            group: "Uploaded",
+          };
+          
+          try {
+            const updated = [newImg, ...loadCustomImages()];
+            saveCustomImages(updated);
+            setCustomImgs(updated);
+            onSelect(compressedBase64);
+            onClose();
+          } catch (e) {
+            alert("Память браузера переполнена! Удалите старые изображения.");
+          }
+        }
+        setUploading(false);
       };
-      const updated = [newImg, ...loadCustomImages()];
-      saveCustomImages(updated);
-      setCustomImgs(updated);
-      setUploading(false);
-      onSelect(base64);
-      onClose();
+      img.src = ev.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -690,6 +730,9 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
    PRODUCT FORM (shared between Edit & Add)
 ══════════════════════════════════════════════════════ */
 const CATEGORY_OPTIONS = [
+  "Витамины и БАДы",
+  "Витамины",
+  "Детские витамины",
   "Витамины для детей",
   "Витамины для женщин",
   "Витамины для мужчин",
@@ -1570,9 +1613,55 @@ function SettingsTab() {
 }
 
 
-/* ══════════════════════════════════════════════════════
-   MAIN PAGE
-══════════════════════════════════════════════════════ */
+const STORAGE_VERSION_KEY = "ohc_storage_version";
+const CURRENT_STORAGE_VERSION = "3";
+
+const sanitizeLocalStorage = () => {
+  try {
+    const rawGallery = localStorage.getItem("ohc_gallery");
+    if (rawGallery) {
+      const gallery = JSON.parse(rawGallery) as any[];
+      const cleaned = gallery.filter(img => {
+        if (img && typeof img.url === "string" && img.url.startsWith("data:") && img.url.length > 400000) {
+          return false;
+        }
+        return true;
+      });
+      if (cleaned.length < gallery.length) {
+        localStorage.setItem("ohc_gallery", JSON.stringify(cleaned));
+      }
+    }
+    
+    const rawCustom = localStorage.getItem("ohc_custom_products");
+    if (rawCustom) {
+      const custom = JSON.parse(rawCustom) as any[];
+      const cleaned = custom.map(p => {
+        if (p && typeof p.image === "string" && p.image.startsWith("data:") && p.image.length > 400000) {
+          p.image = "/assets/prod-vitd-k__PCbaP.jpg";
+        }
+        return p;
+      });
+      localStorage.setItem("ohc_custom_products", JSON.stringify(cleaned));
+    }
+  } catch (e) {
+    console.error("Sanitization error:", e);
+  }
+};
+
+const migrateProducts = () => {
+  try {
+    const version = localStorage.getItem(STORAGE_VERSION_KEY);
+    if (version !== CURRENT_STORAGE_VERSION) {
+      localStorage.setItem("ohc_all_products", JSON.stringify(DEFAULT_PRODUCTS));
+      localStorage.setItem("ohc_custom_products", JSON.stringify([]));
+      localStorage.removeItem("ohc_gallery");
+      localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_STORAGE_VERSION);
+    }
+  } catch (e) {
+    console.error("Migration error:", e);
+  }
+};
+
 function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [tab, setTab] = useState("dashboard");
@@ -1580,39 +1669,41 @@ function AdminPage() {
   const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
+    sanitizeLocalStorage();
+    migrateProducts();
     setAuthed(localStorage.getItem("ohc_admin") === "1");
     
-    // Load custom products from localStorage
-    let customProds: Product[] = [];
+    // Load products from localStorage
     try {
-      const saved = localStorage.getItem("ohc_custom_products");
-      if (saved) customProds = JSON.parse(saved);
-    } catch (e) {
-      console.error("Failed to parse custom products", e);
-    }
+      const allSaved = localStorage.getItem("ohc_all_products");
+      if (allSaved) {
+        const parsed = JSON.parse(allSaved) as Product[];
+        parsed.forEach(p => {
+          const defItem = DEFAULT_PRODUCTS.find(d => d.id === p.id);
+          if (defItem) p.image = defItem.image;
+        });
+        setProducts(parsed);
+        setLoadingProducts(false);
+        return;
+      }
+      
+      // Fallback/Migration
+      const oldCustom = localStorage.getItem("ohc_custom_products");
+      let customProds: Product[] = [];
+      if (oldCustom) customProds = JSON.parse(oldCustom);
 
-    // Fetch products from server API
-    fetch("/api/products")
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const merged = [...data];
-          customProds.forEach(cp => {
-            if (!merged.some(p => p.id === cp.id)) {
-              merged.push(cp);
-            }
-          });
-          setProducts(merged);
-        } else {
-          setProducts([...DEFAULT_PRODUCTS, ...customProds]);
-        }
-        setLoadingProducts(false);
-      })
-      .catch(err => {
-        console.error("Failed to load products from API", err);
-        setProducts([...DEFAULT_PRODUCTS, ...customProds]);
-        setLoadingProducts(false);
+      const fallback = [...DEFAULT_PRODUCTS, ...customProds];
+      fallback.forEach(p => {
+        const defItem = DEFAULT_PRODUCTS.find(d => d.id === p.id);
+        if (defItem) p.image = defItem.image;
       });
+      setProducts(fallback);
+      setLoadingProducts(false);
+    } catch (e) {
+      console.error(e);
+      setProducts(DEFAULT_PRODUCTS);
+      setLoadingProducts(false);
+    }
   }, []);
 
   const handleLogin = () => setAuthed(true);
@@ -1625,10 +1716,18 @@ function AdminPage() {
   const handleProductUpdate = async (updated: Product[]) => {
     setProducts(updated);
     
-    // Persist custom products in localStorage
-    const defaultIds = new Set(["1", "2", "3", "4", "5", "6"]);
-    const customProds = updated.filter(p => !defaultIds.has(p.id));
-    localStorage.setItem("ohc_custom_products", JSON.stringify(customProds));
+    try {
+      // Persist ALL products in localStorage
+      localStorage.setItem("ohc_all_products", JSON.stringify(updated));
+      
+      // Also save custom products to ohc_custom_products as a backup/migration aid
+      const defaultIds = new Set(["7", "8"]);
+      const customProds = updated.filter(p => !defaultIds.has(p.id));
+      localStorage.setItem("ohc_custom_products", JSON.stringify(customProds));
+    } catch (e) {
+      console.error("Storage error:", e);
+      toast.error("Ошибка сохранения: недостаточно памяти в браузере. Удалите старые изображения из галереи.");
+    }
 
     try {
       const response = await fetch("/api/products", {
