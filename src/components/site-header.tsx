@@ -5,6 +5,7 @@ import { useCart } from "@/lib/cart-context";
 import type { Lang } from "@/lib/i18n";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logoMark from "@/assets/logo-mark.jpg";
+import { toast } from "sonner";
 
 const langs: { code: Lang; label: string }[] = [
   { code: "en", label: "EN" },
@@ -171,7 +172,13 @@ export function SiteHeader() {
           <a href="/admin" title={t.header.account}>
             <IconBtn label={t.header.account}><User className="size-5" /></IconBtn>
           </a>
-          <IconBtn label={t.header.wishlist} badge="3"><Heart className="size-5" /></IconBtn>
+          <IconBtn 
+            onClick={() => toast.info(lang === "ru" ? "Избранное временно пусто" : lang === "uz" ? "Saralanganlar bo'sh" : "Wishlist is empty")}
+            label={t.header.wishlist} 
+            badge="0"
+          >
+            <Heart className="size-5" />
+          </IconBtn>
           <IconBtn onClick={() => setIsCartOpen(true)} label={t.header.cart} badge={totalItems > 0 ? String(totalItems) : undefined}><ShoppingBag className="size-5" /></IconBtn>
         </div>
       </div>
