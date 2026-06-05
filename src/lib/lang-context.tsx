@@ -10,7 +10,21 @@ interface LangContextValue {
 const LangContext = createContext<LangContextValue | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("ohc_lang") as Lang;
+      if (saved === "ru" || saved === "uz" || saved === "en") return saved;
+    }
+    return "ru";
+  });
+
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ohc_lang", l);
+    }
+  };
+
   return (
     <LangContext.Provider value={{ lang, setLang, t: dict[lang] }}>
       {children}
