@@ -262,7 +262,24 @@ function CategoryCard({
   const { t } = useLang();
   const targetHref = cat.key === "vitamins" ? "#vitamin-universe" : `#category-${cat.key}`;
   return (
-    <a href={targetHref} className={`group relative overflow-hidden rounded-3xl ${className}`}>
+    <a
+      href={targetHref}
+      onClick={(e) => {
+        e.preventDefault();
+        const url = new URL(window.location.origin + window.location.pathname);
+        url.hash = cat.key === "vitamins" ? "#vitamin-universe" : `#category-${cat.key}`;
+        window.history.pushState({}, "", url.toString());
+        window.dispatchEvent(new Event("popstate"));
+        
+        if (cat.key !== "vitamins") {
+          setTimeout(() => {
+            const el = document.getElementById("products-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }, 100);
+        }
+      }}
+      className={`group relative overflow-hidden rounded-3xl ${className}`}
+    >
       <img src={cat.img} alt={cat.name} loading="lazy" width={800} height={1000} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
       <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/90 via-forest/30 to-transparent" />
       <div className="absolute inset-0 p-5 md:p-6 flex flex-col justify-end text-cream">
@@ -414,9 +431,25 @@ function VitaminUniverseModal({ isOpen, onClose, products }: { isOpen: boolean; 
   );
 }
 
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/₃/g, "3")
+    .replace(/₂/g, "2")
+    .replace(/₁/g, "1")
+    .replace(/₄/g, "4")
+    .replace(/₅/g, "5")
+    .replace(/₆/g, "6")
+    .replace(/₇/g, "7")
+    .replace(/₈/g, "8")
+    .replace(/₉/g, "9")
+    .replace(/₀/g, "0")
+    .trim();
+}
+
 /* ---------- BESTSELLERS ---------- */
 function normalizeCategory(cat: string): string {
-  const c = cat.toLowerCase().trim();
+  const c = normalizeText(cat);
   if (
     c.includes("витамин") || c.includes("vitamin") || 
     c.includes("бад") || c.includes("supplements") || c.includes("bad") || c.includes("добавк") ||
@@ -451,9 +484,9 @@ function normalizeCategory(cat: string): string {
 }
 
 function matchSearch(product: Product, query: string): boolean {
-  const q = query.toLowerCase().trim();
-  const name = product.name.toLowerCase();
-  const cat = product.category.toLowerCase();
+  const q = normalizeText(query);
+  const name = normalizeText(product.name);
+  const cat = normalizeText(product.category);
   
   // 1. Group checks: map known search queries (from the modal) to their categories
   
@@ -623,7 +656,7 @@ function Bestsellers({ products }: { products: Product[] }) {
             el.scrollIntoView({ behavior: "smooth" });
           }
         }, 100);
-      } else if (!hash) {
+      } else {
         setActiveCategory("all");
       }
     };
