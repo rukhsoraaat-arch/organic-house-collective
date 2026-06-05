@@ -702,19 +702,19 @@ function ProductForm({ form, setForm, onSave, onClose, title, subtitle, saveLabe
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#161b22] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl">
+      <div className="bg-[#161b22] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl">
         {/* header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/6">
+        <div className="flex items-center justify-between p-6 border-b border-white/6 flex-shrink-0">
           <div>
             <h2 className="text-white font-semibold text-lg">{title}</h2>
             {subtitle && <p className="text-white/40 text-sm mt-0.5">{subtitle}</p>}
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 grid place-items-center text-white/50 hover:text-white transition">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 grid place-items-center text-white/50 hover:text-white transition cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-6 space-y-5 overflow-y-auto flex-1">
           {/* image picker */}
           <ImagePicker value={form.image} onChange={url => set("image", url)} />
 
@@ -1452,6 +1452,19 @@ function SettingsTab() {
               {testLoading ? "Отправка..." : "Проверить соединение (Тест)"}
             </button>
           </div>
+
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-2.5 text-xs text-white/60">
+            <div className="font-semibold text-emerald-400">📖 Как настроить и привязать бота:</div>
+            <ol className="list-decimal pl-4 space-y-1.5 leading-relaxed">
+              <li>Откройте Telegram и найдите бота <a href="https://t.me/BotFather" target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">@BotFather</a>.</li>
+              <li>Создайте нового бота с помощью команды <code>/newbot</code>, задайте имя и юзернейм, скопируйте полученный <b>Token</b> в поле выше.</li>
+              <li>Создайте Telegram-группу или канал, куда будут приходить заказы, и добавьте туда вашего созданного бота как Администратора.</li>
+              <li>Чтобы узнать <b>Chat ID</b> вашей группы: добавьте туда бота <a href="https://t.me/RawDataBot" target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">@RawDataBot</a>, скопируйте <code>chat.id</code> (начинается с <code>-100...</code>) и вставьте его выше. Затем удалите RawDataBot.</li>
+              <li>
+                <b>Привязка как Web App:</b> В @BotFather отправьте команду <code>/newapp</code>, выберите вашего бота, введите название приложения и отправьте ссылку на этот сайт (например, <code>{typeof window !== 'undefined' ? window.location.origin : 'https://...'}</code>). Полученный WebApp юзернейм привяжет кнопку «Меню» в боте к сайту!
+              </li>
+            </ol>
+          </div>
         </div>
 
         {/* Payments Section */}
@@ -1529,17 +1542,35 @@ function AdminPage() {
   useEffect(() => {
     setAuthed(localStorage.getItem("ohc_admin") === "1");
     
+    // Load custom products from localStorage
+    let customProds: Product[] = [];
+    try {
+      const saved = localStorage.getItem("ohc_custom_products");
+      if (saved) customProds = JSON.parse(saved);
+    } catch (e) {
+      console.error("Failed to parse custom products", e);
+    }
+
     // Fetch products from server API
     fetch("/api/products")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setProducts(data);
+          const merged = [...data];
+          customProds.forEach(cp => {
+            if (!merged.some(p => p.id === cp.id)) {
+              merged.push(cp);
+            }
+          });
+          setProducts(merged);
+        } else {
+          setProducts([...DEFAULT_PRODUCTS, ...customProds]);
         }
         setLoadingProducts(false);
       })
       .catch(err => {
         console.error("Failed to load products from API", err);
+        setProducts([...DEFAULT_PRODUCTS, ...customProds]);
         setLoadingProducts(false);
       });
   }, []);
@@ -1553,6 +1584,12 @@ function AdminPage() {
 
   const handleProductUpdate = async (updated: Product[]) => {
     setProducts(updated);
+    
+    // Persist custom products in localStorage
+    const defaultIds = new Set(["1", "2", "3", "4", "5", "6"]);
+    const customProds = updated.filter(p => !defaultIds.has(p.id));
+    localStorage.setItem("ohc_custom_products", JSON.stringify(customProds));
+
     try {
       const response = await fetch("/api/products", {
         method: "POST",
@@ -1560,13 +1597,13 @@ function AdminPage() {
         body: JSON.stringify(updated),
       });
       if (response.ok) {
-        toast.success("Изменения успешно сохранены на сервере!");
+        toast.success("Изменения успешно сохранены!");
       } else {
-        toast.error("Не удалось сохранить изменения на сервере");
+        toast.error("Не удалось сохранить на сервере, но сохранено локально");
       }
     } catch (e) {
       console.error(e);
-      toast.error("Ошибка при сохранении на сервере");
+      toast.error("Сохранено локально в браузере");
     }
   };
 
