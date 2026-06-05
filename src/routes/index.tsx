@@ -7,6 +7,7 @@ import { ProductCard, type Product } from "@/components/product-card";
 import { useState, useEffect } from "react";
 import { CartProvider } from "@/lib/cart-context";
 import { CartDrawer } from "@/components/cart-drawer";
+import { toast } from "sonner";
 
 import hero from "@/assets/hero-1.jpg";
 import catVit from "@/assets/cat-vitamins.jpg";
@@ -556,19 +557,34 @@ function Bestsellers() {
   ];
 
   useEffect(() => {
+    // Load custom products from localStorage
+    let customProds: Product[] = [];
+    try {
+      const saved = localStorage.getItem("ohc_custom_products");
+      if (saved) customProds = JSON.parse(saved);
+    } catch (e) {
+      console.error("Failed to parse custom products", e);
+    }
+
     // Fetch products from server API
     fetch("/api/products")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setProducts(data);
+          const merged = [...data];
+          customProds.forEach(cp => {
+            if (!merged.some(p => p.id === cp.id)) {
+              merged.push(cp);
+            }
+          });
+          setProducts(merged);
         } else {
-          setProducts(defaultProducts);
+          setProducts([...defaultProducts, ...customProds]);
         }
       })
       .catch(err => {
         console.error("Failed to fetch products", err);
-        setProducts(defaultProducts);
+        setProducts([...defaultProducts, ...customProds]);
       });
   }, []);
 
@@ -829,7 +845,17 @@ function Journal() {
 
 /* ---------- NEWSLETTER ---------- */
 function Newsletter() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      toast.success(lang === "ru" ? "Вы успешно подписались на рассылку!" : lang === "uz" ? "Siz axborotnomaga muvaffaqiyatli obuna bo'ldingiz!" : "Successfully subscribed to the newsletter!");
+      setEmail("");
+    }
+  };
+
   return (
     <section className="container mx-auto px-6 pb-20 md:pb-28">
       <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-forest-deep via-forest to-forest-deep p-10 md:p-16 lg:p-20 text-cream">
@@ -843,14 +869,16 @@ function Newsletter() {
           </h2>
           <p className="text-cream/75 text-lg mb-8 max-w-lg">{t.sections.newsletterSub}</p>
 
-          <form className="flex flex-col sm:flex-row gap-3 max-w-lg">
+          <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-lg">
             <input
               type="email"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
               className="flex-1 h-14 px-6 rounded-full bg-cream/10 backdrop-blur border border-cream/15 text-cream placeholder:text-cream/40 focus:outline-none focus:border-gold transition"
             />
-            <button className="h-14 px-8 rounded-full bg-gold text-forest-deep font-semibold hover:bg-gold-soft transition shadow-lift whitespace-nowrap">
+            <button type="submit" className="h-14 px-8 rounded-full bg-gold text-forest-deep font-semibold hover:bg-gold-soft transition shadow-lift whitespace-nowrap cursor-pointer">
               {t.sections.subscribe}
             </button>
           </form>
